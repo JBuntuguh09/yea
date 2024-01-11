@@ -1,0 +1,462 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/constMain"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".fragments.StartPage">
+
+    <ScrollView
+        android:id="@+id/scrollView2"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:id="@+id/linStaffLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/baseline_20dp"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:padding="@dimen/baseline_10dp"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/staff"
+                    android:textSize="16sp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="2dp"
+                    android:layout_marginStart="@dimen/baseline_10dp"
+                    android:background="@color/grey" />
+            </LinearLayout>
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.5" />
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardAgent"
+                android:layout_width="@dimen/baseline_100dp"
+                android:layout_height="@dimen/baseline_100dp"
+                android:backgroundTint="@color/green"
+                app:cardCornerRadius="@dimen/baseline_50dp"
+                app:layout_constraintEnd_toStartOf="@+id/guideline"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/linStaffLabel">
+
+                <TextView
+                    android:id="@+id/txtAgent"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:padding="@dimen/baseline_10dp"
+                    android:text="0"
+                    android:textAlignment="center"
+                    android:textColor="@color/white"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardSuper"
+                android:layout_width="@dimen/baseline_100dp"
+                android:layout_height="@dimen/baseline_100dp"
+
+                android:backgroundTint="@color/blue"
+                app:cardCornerRadius="@dimen/baseline_50dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="@+id/guideline"
+                app:layout_constraintTop_toBottomOf="@id/linStaffLabel">
+
+                <TextView
+                    android:id="@+id/txtSuper"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:padding="@dimen/baseline_10dp"
+                    android:text="0"
+                    android:textAlignment="center"
+                    android:textColor="@color/white"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+            </androidx.cardview.widget.CardView>
+
+            <TextView
+                android:id="@+id/txtAgentLabel"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/baseline_5dp"
+                android:text="@string/agents"
+                android:textAlignment="center"
+                app:layout_constraintEnd_toStartOf="@id/guideline"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/cardAgent" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/baseline_5dp"
+                android:text="Supervisors"
+                android:textAlignment="center"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/guideline"
+                app:layout_constraintTop_toBottomOf="@id/cardSuper" />
+
+            <LinearLayout
+                android:id="@+id/linAttendLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/baseline_20dp"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:padding="@dimen/baseline_10dp"
+                app:layout_constraintTop_toBottomOf="@id/txtAgentLabel">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Attendance"
+                    android:textSize="16sp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="2dp"
+                    android:layout_marginStart="@dimen/baseline_10dp"
+                    android:background="@color/grey" />
+            </LinearLayout>
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardDaily"
+                android:layout_width="@dimen/baseline_100dp"
+                android:layout_height="@dimen/baseline_100dp"
+                android:backgroundTint="@color/yellow_100"
+                app:cardCornerRadius="@dimen/baseline_50dp"
+                app:layout_constraintEnd_toStartOf="@+id/cardWeekly"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/linAttendLabel">
+
+                <TextView
+                    android:id="@+id/txtDay"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:padding="@dimen/baseline_10dp"
+                    android:text="0"
+                    android:textAlignment="center"
+                    android:textColor="@color/white"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardWeekly"
+                android:layout_width="@dimen/baseline_100dp"
+                android:layout_height="@dimen/baseline_100dp"
+                android:backgroundTint="@color/red"
+                app:cardCornerRadius="@dimen/baseline_50dp"
+                app:layout_constraintEnd_toStartOf="@+id/cardMonthly"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toEndOf="@+id/cardDaily"
+                app:layout_constraintTop_toBottomOf="@id/linAttendLabel">
+
+                <TextView
+                    android:id="@+id/txtWeek"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:padding="@dimen/baseline_10dp"
+                    android:text="0"
+                    android:textAlignment="center"
+                    android:textColor="@color/white"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardMonthly"
+                android:layout_width="@dimen/baseline_100dp"
+                android:layout_height="@dimen/baseline_100dp"
+                android:backgroundTint="@color/green"
+                app:cardCornerRadius="@dimen/baseline_50dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toEndOf="@+id/cardWeekly"
+                app:layout_constraintTop_toBottomOf="@id/linAttendLabel">
+
+                <TextView
+                    android:id="@+id/txtMonth"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:padding="@dimen/baseline_10dp"
+                    android:text="0"
+                    android:textAlignment="center"
+                    android:textColor="@color/white"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+            </androidx.cardview.widget.CardView>
+
+            <TextView
+                android:id="@+id/txtDayLabel"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/baseline_5dp"
+                android:text="@string/daily"
+                android:textAlignment="center"
+                app:layout_constraintEnd_toStartOf="@id/txtWeekLabel"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/cardDaily" />
+
+            <TextView
+                android:id="@+id/txtWeekLabel"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/baseline_5dp"
+                android:text="@string/weekly"
+                android:textAlignment="center"
+                app:layout_constraintEnd_toStartOf="@+id/txtMonthLabel"
+                app:layout_constraintStart_toEndOf="@id/txtDayLabel"
+                app:layout_constraintTop_toBottomOf="@id/cardDaily" />
+
+            <TextView
+                android:id="@+id/txtMonthLabel"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/baseline_5dp"
+                android:text="@string/monthly"
+                android:textAlignment="center"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/txtWeekLabel"
+                app:layout_constraintTop_toBottomOf="@id/cardDaily" />
+
+            <TextView
+                android:id="@+id/txtChartTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/baseline_10dp"
+                android:text="Attendance Line Chart"
+                android:textAlignment="center"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:layout_constraintTop_toBottomOf="@id/txtMonthLabel" />
+
+            <com.github.mikephil.charting.charts.LineChart
+                android:id="@+id/lineChart"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:layout_margin="@dimen/baseline_10dp"
+                app:layout_constraintTop_toBottomOf="@id/txtChartTitle" />
+
+            <LinearLayout
+                android:id="@+id/linLeft"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:orientation="vertical"
+                android:padding="@dimen/baseline_10dp"
+                app:layout_constraintEnd_toStartOf="@+id/guideline"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/lineChart">
+
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/cardStaff"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/baseline_100dp"
+                    android:layout_gravity="center"
+                    android:backgroundTint="@color/primary"
+                    app:cardCornerRadius="@dimen/baseline_10dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:orientation="vertical">
+
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:src="@drawable/baseline_account_circle_24" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/baseline_5dp"
+                            android:text="@string/staff"
+                            android:textAlignment="center"
+                            android:textColor="@color/white"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+
+                </androidx.cardview.widget.CardView>
+
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/cardUsers"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/baseline_100dp"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="@dimen/baseline_10dp"
+                    android:backgroundTint="@color/primary"
+                    app:cardCornerRadius="@dimen/baseline_10dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:orientation="vertical">
+
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:src="@drawable/baseline_accessibility_24" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/baseline_5dp"
+                            android:text="@string/users"
+                            android:textAlignment="center"
+                            android:textColor="@color/white"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+
+                </androidx.cardview.widget.CardView>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/linRight"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/baseline_10dp"
+                android:orientation="vertical"
+                android:padding="@dimen/baseline_10dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/guideline"
+                app:layout_constraintTop_toBottomOf="@id/lineChart">
+
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/cardAttendance"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/baseline_100dp"
+                    android:layout_gravity="center"
+                    android:backgroundTint="@color/primary"
+                    app:cardCornerRadius="@dimen/baseline_10dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:orientation="vertical">
+
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:src="@drawable/baseline_access_alarm_24" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/baseline_5dp"
+                            android:text="@string/attendance"
+                            android:textAlignment="center"
+                            android:textColor="@color/white"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+
+                </androidx.cardview.widget.CardView>
+
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/cardSignout"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/baseline_100dp"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="@dimen/baseline_10dp"
+                    android:backgroundTint="@color/primary"
+                    app:cardCornerRadius="@dimen/baseline_10dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:orientation="vertical">
+
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:src="@drawable/baseline_account_circle_24" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/baseline_5dp"
+                            android:text="@string/sign_outs"
+                            android:textAlignment="center"
+                            android:textColor="@color/white"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+
+                </androidx.cardview.widget.CardView>
+
+            </LinearLayout>
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
+
+    <ProgressBar
+        android:visibility="gone"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/progressBar"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/btnAttendance"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/baseline_10dp"
+        android:src="@drawable/baseline_add_to_home_screen_24"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/scrollView2"
+        app:tint="@color/white" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/btnSignout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/baseline_10dp"
+        android:src="@drawable/baseline_add_card_24"
+        android:layout_marginTop="@dimen/baseline_10dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btnAttendance"
+        app:tint="@color/white" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

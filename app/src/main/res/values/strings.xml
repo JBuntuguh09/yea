@@ -1,0 +1,23 @@
+<resources>
+    <string name="app_name">YEA</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="username_phone_number">Username/Phone Number</string>
+    <string name="password">Password</string>
+    <string name="staff">STAFF</string>
+    <string name="agents">Agents</string>
+    <string name="day">Day</string>
+    <string name="month">Month</string>
+    <string name="weekly">Weekly</string>
+    <string name="daily">Daily</string>
+    <string name="monthly">Monthly</string>
+    <string name="attendance">Attendance</string>
+    <string name="users">Users</string>
+    <string name="sign_outs">Sign Outs</string>
+    <string name="submit">Submit</string>
+    <string name="supervisor">Supervisor</string>
+    <string name="district">District</string>
+    <string name="region">Region</string>
+    <string name="view_attendance">View Attendance</string>
+    <string name="scan_your_card">Scan your card</string>
+</resources>
