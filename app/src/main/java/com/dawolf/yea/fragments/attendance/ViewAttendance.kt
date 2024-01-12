@@ -3,6 +3,7 @@ package com.dawolf.yea.fragments.attendance
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
@@ -13,6 +14,7 @@ import com.dawolf.yea.MainBase
 import com.dawolf.yea.R
 import com.dawolf.yea.adapters.RecyclerViewAgents
 import com.dawolf.yea.adapters.RecyclerViewAttendance
+import com.dawolf.yea.adapters.RecyclerViewSupervisors
 import com.dawolf.yea.database.Attendances.Attendances
 import com.dawolf.yea.database.Attendances.AttendancesViewModel
 import com.dawolf.yea.databinding.FragmentViewAttendanceBinding
@@ -74,6 +76,7 @@ class ViewAttendance : Fragment() {
         attendancesViewModel.liveData.observe(requireActivity()){data->
             if(data.isNotEmpty()){
                 try {
+                    arrayList.clear()
                     for(a in data.indices){
                         val hash = HashMap<String, String>()
                         val jObject = data[a]
@@ -95,13 +98,15 @@ class ViewAttendance : Fragment() {
 
                         hash["agent_id"] = jObject.agent_id
 
+                        hash["sDate"] =  hash["date"]!!.split(" at ")[0]
+
 
 
                         arrayList.add(hash)
 
 
                     }
-
+                    ShortCut_To.sortData(arrayList, "sDate")
 
                     val recyclerViewAttendance = RecyclerViewAttendance(requireContext(), arrayList)
                     val linearLayoutManager = LinearLayoutManager(requireContext())
@@ -120,6 +125,40 @@ class ViewAttendance : Fragment() {
         binding.floatAdd.setOnClickListener {
             (activity as MainBase).navTo(NewAttendance(), "New Attendance", "View Attendance", 1)
         }
+
+        binding.edtSearch.setOnTouchListener(View.OnTouchListener { v, event ->
+            val DRAWABLE_LEFT = 0
+            val DRAWABLE_TOP = 1
+            val DRAWABLE_RIGHT = 2
+            val DRAWABLE_BOTTOM = 3
+            if (event.action == MotionEvent.ACTION_UP) {
+                if (event.rawX >= binding.edtSearch.right - binding.edtSearch.compoundDrawables[DRAWABLE_RIGHT].bounds.width()) {
+                    // your action here
+                    searchData()
+                    return@OnTouchListener true
+                }
+            }
+            false
+        })
+    }
+
+    private fun searchData() {
+        val searchArray = ArrayList<HashMap<String, String>>()
+        for (a in arrayList.indices){
+            val hash = arrayList[a]
+            if(hash["name"]!!.lowercase().contains(binding.edtSearch.text.toString().lowercase())
+                || hash["sName"]!!.lowercase().contains(binding.edtSearch.text.toString().lowercase())){
+                searchArray.add(hash)
+            }
+        }
+
+
+        val recyclerViewAttendance = RecyclerViewAttendance(requireContext(), searchArray)
+        val linearLayoutManager = LinearLayoutManager(requireContext())
+        binding.recycler.layoutManager = linearLayoutManager
+        binding.recycler.itemAnimator = DefaultItemAnimator()
+        binding.recycler.adapter = recyclerViewAttendance
+
     }
 
     @OptIn(DelicateCoroutinesApi::class)

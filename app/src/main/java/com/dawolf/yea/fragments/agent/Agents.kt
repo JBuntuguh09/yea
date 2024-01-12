@@ -3,6 +3,7 @@ package com.dawolf.yea.fragments.agent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
@@ -74,6 +75,21 @@ class Agents : Fragment() {
             (activity as MainBase).navTo(RegisterAgent(), "New Agent", "Staff", 1)
         }
 
+        binding.edtSearch.setOnTouchListener(View.OnTouchListener { v, event ->
+            val DRAWABLE_LEFT = 0
+            val DRAWABLE_TOP = 1
+            val DRAWABLE_RIGHT = 2
+            val DRAWABLE_BOTTOM = 3
+            if (event.action == MotionEvent.ACTION_UP) {
+                if (event.rawX >= binding.edtSearch.right - binding.edtSearch.compoundDrawables[DRAWABLE_RIGHT].bounds.width()) {
+                    // your action here
+                    searchData()
+                    return@OnTouchListener true
+                }
+            }
+            false
+        })
+
         agentViewModel.liveData.observe(requireActivity()){data->
             try {
                 if(data.isNotEmpty()){
@@ -120,6 +136,25 @@ class Agents : Fragment() {
             }
 
         }
+    }
+
+    private fun searchData() {
+        val searchArray = ArrayList<HashMap<String, String>>()
+        for (a in arrayList.indices){
+            val hash = arrayList[a]
+            if(hash["name"]!!.lowercase().contains(binding.edtSearch.text.toString().lowercase())
+                || hash["status"]!!.lowercase().contains(binding.edtSearch.text.toString().lowercase())){
+                searchArray.add(hash)
+            }
+        }
+
+        //ShortCut_To.sortData(arrayList, "name")
+        val recyclerViewAgents = RecyclerViewAgents(requireContext(), searchArray)
+        val linearLayoutManager = LinearLayoutManager(requireContext())
+        binding.recycler.layoutManager = linearLayoutManager
+        binding.recycler.itemAnimator = DefaultItemAnimator()
+        binding.recycler.adapter = recyclerViewAgents
+
     }
 
     @OptIn(DelicateCoroutinesApi::class)

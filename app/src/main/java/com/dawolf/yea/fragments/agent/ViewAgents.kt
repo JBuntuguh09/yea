@@ -3,6 +3,7 @@ package com.dawolf.yea.fragments.agent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
@@ -15,7 +16,6 @@ import com.dawolf.yea.adapters.RecyclerViewAgents
 import com.dawolf.yea.database.agent.Agent
 import com.dawolf.yea.database.agent.AgentViewModel
 import com.dawolf.yea.databinding.FragmentViewAgentsBinding
-import com.dawolf.yea.fragments.supervisor.RegisterSupervisor
 import com.dawolf.yea.resources.Constant
 import com.dawolf.yea.resources.ShortCut_To
 import com.dawolf.yea.resources.Storage
@@ -70,6 +70,21 @@ class ViewAgents : Fragment() {
         return view
     }
     private fun getButtons() {
+        binding.edtSearch.setOnTouchListener(View.OnTouchListener { v, event ->
+            val DRAWABLE_LEFT = 0
+            val DRAWABLE_TOP = 1
+            val DRAWABLE_RIGHT = 2
+            val DRAWABLE_BOTTOM = 3
+            if (event.action == MotionEvent.ACTION_UP) {
+                if (event.rawX >= binding.edtSearch.right - binding.edtSearch.compoundDrawables[DRAWABLE_RIGHT].bounds.width()) {
+                    // your action here
+                    searchData()
+                    return@OnTouchListener true
+                }
+            }
+            false
+        })
+
         binding.floatAdd.setOnClickListener {
             (activity as MainBase).navTo(RegisterAgent(), "New Agent", "Staff", 1)
         }
@@ -109,6 +124,7 @@ class ViewAgents : Fragment() {
 
                     }
 
+                    ShortCut_To.sortData(arrayList, "name")
                     val recyclerViewAgents = RecyclerViewAgents(requireContext(), arrayList)
                     val linearLayoutManager = LinearLayoutManager(requireContext())
                     binding.recycler.layoutManager = linearLayoutManager
@@ -120,6 +136,25 @@ class ViewAgents : Fragment() {
             }
 
         }
+    }
+
+    private fun searchData() {
+        val searchArray = ArrayList<HashMap<String, String>>()
+        for (a in arrayList.indices){
+            val hash = arrayList[a]
+            if(hash["name"]!!.lowercase().contains(binding.edtSearch.text.toString().lowercase())
+                || hash["status"]!!.lowercase().contains(binding.edtSearch.text.toString().lowercase())){
+                    searchArray.add(hash)
+                }
+        }
+
+        //ShortCut_To.sortData(arrayList, "name")
+        val recyclerViewAgents = RecyclerViewAgents(requireContext(), searchArray)
+        val linearLayoutManager = LinearLayoutManager(requireContext())
+        binding.recycler.layoutManager = linearLayoutManager
+        binding.recycler.itemAnimator = DefaultItemAnimator()
+        binding.recycler.adapter = recyclerViewAgents
+
     }
 
     @OptIn(DelicateCoroutinesApi::class)

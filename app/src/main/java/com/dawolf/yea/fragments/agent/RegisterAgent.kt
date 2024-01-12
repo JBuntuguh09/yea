@@ -14,9 +14,11 @@ import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
+import com.dawolf.yea.MainBase
 import com.dawolf.yea.R
 import com.dawolf.yea.databinding.FragmentRegisterAgentBinding
 import com.dawolf.yea.resources.Constant
@@ -30,6 +32,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
+import org.json.JSONArray
 import org.json.JSONObject
 
 // TODO: Rename parameter arguments, choose names that match
@@ -75,8 +78,7 @@ class RegisterAgent : Fragment(), LocationListener {
         locationManager = requireActivity().getSystemService(Context.LOCATION_SERVICE) as LocationManager
 
         ShortCut_To.timeStamp()
-        getRegion()
-        getDistrict()
+
         getButtons()
         return view
     }
@@ -147,6 +149,77 @@ class RegisterAgent : Fragment(), LocationListener {
                 binding.btnSubmit.isEnabled = false
             }
             sendData()
+        }
+        (activity as MainBase).regionViewModel.liveData.observe(requireActivity()){ data->
+            if(data.isNotEmpty()){
+
+                val list = ArrayList<String>()
+                list.add("Select region")
+                for(a in data.indices){
+                    val jObject = data[a]
+                    val hash = HashMap<String, String>()
+                    hash["id"] = jObject.id
+                    hash["name"] = jObject.name
+                    hash["districts"] =jObject.districts
+
+                    arrayListRegion.add(hash)
+                    list.add(jObject.name)
+
+                }
+
+                if(arrayListRegion.size>0){
+                    val adapter = ArrayAdapter(requireContext(), R.layout.layout_spinner_list, list)
+                    adapter.setDropDownViewResource(R.layout.layout_dropdown)
+                    binding.spinRegion.adapter = adapter
+
+                    binding.spinRegion.onItemSelectedListener = object :
+                        AdapterView.OnItemSelectedListener {
+                        override fun onItemSelected(parentView: AdapterView<*>?, selectedItemView: View?, position: Int, id: Long) {
+                            if(position == 0){
+                                binding.spinDistrict.setSelection(0)
+                                binding.spinDistrict.visibility = View.GONE
+                            }else{
+                                binding.spinDistrict.visibility = View.VISIBLE
+                                getDistrctFromRegion(data[position-1].districts)
+
+                            }
+                        }
+
+                        override fun onNothingSelected(parentView: AdapterView<*>?) {
+                            // Handle case where nothing is selected (optional)
+                        }
+                    }
+                }
+            }else{
+                getRegion()
+                getDistrict()
+            }
+        }
+
+    }
+    fun getDistrctFromRegion(districts: String){
+        try {
+            val jsonArray = JSONArray(districts)
+            val list = ArrayList<String>()
+            list.add("Select district")
+            for (a in 0 until jsonArray.length()){
+                val jsonObject = jsonArray.getJSONObject(a)
+                val hash = HashMap<String, String>()
+                hash["id"] = jsonObject.optString("id")
+                hash["name"] = jsonObject.optString("name")
+
+                arrayListDistrict.add(hash)
+                list.add(jsonObject.optString("name"))
+
+            }
+
+            if(arrayListDistrict.size>0){
+                val adapter = ArrayAdapter(requireContext(), R.layout.layout_spinner_list, list)
+                adapter.setDropDownViewResource(R.layout.layout_dropdown)
+                binding.spinDistrict.adapter = adapter
+            }
+        }catch (e: Exception){
+            e.printStackTrace()
         }
     }
 

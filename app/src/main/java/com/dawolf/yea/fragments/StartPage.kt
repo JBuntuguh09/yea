@@ -433,7 +433,7 @@ class StartPage : Fragment() {
 
     private fun showLine(){
 
-
+        binding.lineChart.clear()
         binding.lineChart.description.isEnabled = false
 
         binding.lineChart.setTouchEnabled(true)
@@ -497,7 +497,7 @@ class StartPage : Fragment() {
         rightAxis.isGranularityEnabled = false
 
         setData()
-        binding.lineChart.invalidate()
+        //binding.lineChart.invalidate()
     }
 
     private fun setData() {
@@ -536,7 +536,7 @@ class StartPage : Fragment() {
             binding.lineChart.notifyDataSetChanged()
         } else {
             // create a dataset and give it a type
-            set1 = LineDataSet(values1, "Bills")
+            set1 = LineDataSet(values1, "Dates")
             set1.axisDependency = YAxis.AxisDependency.LEFT
             set1.color = ColorTemplate.getHoloBlue()
             set1.setCircleColor(Color.WHITE)
@@ -593,7 +593,7 @@ class StartPage : Fragment() {
             xAxis.granularity = 1f
 
             // Refresh the chart
-            binding.lineChart.invalidate()
+           // binding.lineChart.invalidate()
         }
     }
 
@@ -602,7 +602,7 @@ class StartPage : Fragment() {
             // Ensure that the index is within the array bounds
             val index = value.toInt().coerceIn(0, labels.size - 1)
 
-            return labels[index]
+            return "${labels[index].split("/")[0]}/${labels[index].split("/")[1]}"
         }
     }
 
