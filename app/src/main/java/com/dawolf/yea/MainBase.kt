@@ -33,6 +33,8 @@ class MainBase : AppCompatActivity() {
     private lateinit var storage: Storage
      var arrayListAgent = HashMap<String, String>()
      var arrayListSuper = HashMap<String, String>()
+    var arrayListAttend = HashMap<String, String>()
+
     lateinit var regionViewModel: RegionViewModel
     lateinit var districtViewModel: DistrictViewModel
     var agentRFID = ""
