@@ -7,7 +7,9 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
+import com.dawolf.yea.MainBase
 import com.dawolf.yea.R
+import com.dawolf.yea.fragments.attendance.ShowAttendance
 import com.dawolf.yea.resources.Storage
 
 class RecyclerViewAttendance (context: Context, arrayList: ArrayList<HashMap<String, String>>):
@@ -56,7 +58,8 @@ class RecyclerViewAttendance (context: Context, arrayList: ArrayList<HashMap<Str
         holder.supervisor.text = hash["sName"]
 
         holder.card.setOnClickListener {
-
+            (context as MainBase).arrayListAttend = hash
+            (context as MainBase).navTo(ShowAttendance(), "Details", "View Attendance", 1)
         }
 
 

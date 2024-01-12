@@ -1,7 +1,14 @@
 package com.dawolf.yea.fragments.agent
 
+import android.Manifest
+import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.location.Location
+import android.location.LocationListener
+import android.location.LocationManager
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.MotionEvent
@@ -9,9 +16,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.Toast
+import androidx.core.app.ActivityCompat
 import com.dawolf.yea.R
 import com.dawolf.yea.databinding.FragmentRegisterAgentBinding
 import com.dawolf.yea.resources.Constant
+import com.dawolf.yea.resources.MyLocationListener
 import com.dawolf.yea.resources.ShortCut_To
 import com.dawolf.yea.resources.Storage
 import com.dawolf.yea.utils.API
@@ -33,7 +42,7 @@ private const val ARG_PARAM2 = "param2"
  * Use the [RegisterAgent.newInstance] factory method to
  * create an instance of this fragment.
  */
-class RegisterAgent : Fragment() {
+class RegisterAgent : Fragment(), LocationListener {
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
@@ -42,6 +51,10 @@ class RegisterAgent : Fragment() {
     private var arrayListRegion = ArrayList<HashMap<String, String>>()
     private var arrayListDistrict = ArrayList<HashMap<String, String>>()
     var rfid =""
+    private lateinit var locationManager: LocationManager
+    private val LOCATION_PERMISSION_REQUEST_CODE = 1
+    var lat = "0.00"
+    var long="0.00"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,6 +72,7 @@ class RegisterAgent : Fragment() {
         val view = inflater.inflate(R.layout.fragment_register_agent, container, false)
         binding = FragmentRegisterAgentBinding.bind(view)
         storage = Storage(requireContext())
+        locationManager = requireActivity().getSystemService(Context.LOCATION_SERVICE) as LocationManager
 
         ShortCut_To.timeStamp()
         getRegion()
@@ -138,6 +152,8 @@ class RegisterAgent : Fragment() {
 
     @OptIn(DelicateCoroutinesApi::class)
     private fun sendData() = runBlocking {
+        val myLocationListener = MyLocationListener(requireContext())
+
         val api = API()
         val body = mapOf(
             "rfid_no" to  rfid,
@@ -147,8 +163,8 @@ class RegisterAgent : Fragment() {
             "dob" to ShortCut_To.reverseDate(binding.edtDob.text.toString(), "/",  "-"),
             "region_id" to arrayListRegion[binding.spinRegion.selectedItemPosition-1]["id"]!!,
             "district_id" to arrayListDistrict[binding.spinDistrict.selectedItemPosition-1]["id"]!!,
-            "latitude" to "2.567",
-            "longitude" to "89.09"
+            "latitude" to lat,
+            "longitude" to long
         )
 
         println("Akuu $body")
@@ -317,7 +333,71 @@ class RegisterAgent : Fragment() {
             binding.btnScan.text = storage.randVal
             rfid = storage.randVal!!
         }
+        checkLocationPermission()
     }
+
+    private fun checkLocationPermission() {
+        if (ActivityCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                requireActivity(),
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                LOCATION_PERMISSION_REQUEST_CODE
+            )
+        } else {
+            requestLocationUpdates()
+        }
+    }
+
+    private fun requestLocationUpdates() {
+        locationManager.requestLocationUpdates(
+            LocationManager.GPS_PROVIDER,
+            0L, 0f, this
+        )
+    }
+
+    override fun onLocationChanged(location: Location) {
+        val latitude = location.latitude
+        val longitude = location.longitude
+        Log.d("Location", "Latitude: $latitude, Longitude: $longitude")
+        lat = latitude.toString()
+        long = longitude.toString()
+
+        // Use latitude and longitude as needed
+    }
+
+    override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {
+        // Handle status changes if needed
+    }
+
+    override fun onProviderEnabled(provider: String) {
+        // Handle provider enabled if needed
+    }
+
+    override fun onProviderDisabled(provider: String) {
+        // Handle provider disabled if needed
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        when (requestCode) {
+            LOCATION_PERMISSION_REQUEST_CODE -> {
+                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    requestLocationUpdates()
+                } else {
+                    // Handle permission denied
+                }
+            }
+        }
+    }
+
+
 
     companion object {
         /**

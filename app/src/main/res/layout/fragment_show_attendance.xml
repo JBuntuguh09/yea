@@ -5,10 +5,175 @@
     android:layout_height="match_parent"
     tools:context=".fragments.attendance.ShowAttendance">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:layout_height="wrap_content">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <androidx.cardview.widget.CardView
+                android:layout_gravity="center"
+                android:backgroundTint="@color/primary"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/baseline_150dp">
+
+                <TextView
+                    android:layout_marginStart="@dimen/baseline_10dp"
+                    android:layout_marginEnd="@dimen/baseline_10dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/txtName"
+                    android:textAllCaps="true"
+                    android:textSize="24sp"
+                    android:textStyle="bold"
+                    android:text="Name"
+                    android:layout_gravity="center"
+                    android:textColor="@color/white"
+                    android:textAlignment="center"/>
+            </androidx.cardview.widget.CardView>
+
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAlignment="center"
+                android:id="@+id/txtStatus"
+                android:textSize="17sp"
+                android:padding="@dimen/baseline_10dp"
+                android:textStyle="bold"/>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="@dimen/baseline_10dp">
+
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/baseline_2dp"
+                    android:background="@color/grey"/>
+                <TextView
+                    android:layout_marginTop="@dimen/baseline_10dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="RFID"
+                    android:textStyle="bold"/>
+
+                <TextView
+                    android:layout_marginTop="@dimen/baseline_5dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/txtRfid"
+                    />
+
+
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/baseline_2dp"
+                    android:background="@color/grey"/>
+
+                <TextView
+                    android:layout_marginTop="@dimen/baseline_20dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Date/Time"
+                    android:textStyle="bold"/>
+
+                <TextView
+                    android:layout_marginTop="@dimen/baseline_5dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/txtDob"
+                    />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/baseline_2dp"
+                    android:background="@color/grey"/>
+
+                <TextView
+                    android:layout_marginTop="@dimen/baseline_20dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/region"
+                    android:textStyle="bold"/>
+
+                <TextView
+                    android:layout_marginTop="@dimen/baseline_5dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/txtRegion"
+                    />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/baseline_2dp"
+                    android:background="@color/grey"/>
+
+                <TextView
+                    android:layout_marginTop="@dimen/baseline_20dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/district"
+                    android:textStyle="bold"/>
+
+                <TextView
+                    android:layout_marginTop="@dimen/baseline_5dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/txtDistrict"
+                    />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/baseline_2dp"
+                    android:background="@color/grey"/>
+
+                <TextView
+                    android:layout_marginTop="@dimen/baseline_20dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Supervisor"
+                    android:textStyle="bold"/>
+
+                <TextView
+                    android:layout_marginTop="@dimen/baseline_5dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/txtSupervisor"
+                    />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/baseline_2dp"
+                    android:background="@color/grey"/>
+
+                <TextView
+                    android:layout_marginTop="@dimen/baseline_20dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Sign Out"
+                    android:textStyle="bold"/>
+
+                <TextView
+                    android:layout_marginTop="@dimen/baseline_5dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/txtSignout"
+                    />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/baseline_2dp"
+                    android:background="@color/grey"/>
+
+            </LinearLayout>
+
+
+
+
+        </LinearLayout>
+    </ScrollView>
+
 
 </FrameLayout>

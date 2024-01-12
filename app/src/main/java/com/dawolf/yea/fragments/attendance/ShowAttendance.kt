@@ -5,7 +5,10 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.dawolf.yea.MainBase
 import com.dawolf.yea.R
+import com.dawolf.yea.databinding.FragmentShowAttendanceBinding
+import com.dawolf.yea.resources.ShortCut_To
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -21,6 +24,7 @@ class ShowAttendance : Fragment() {
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
+    private lateinit var binding: FragmentShowAttendanceBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,7 +39,35 @@ class ShowAttendance : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_show_attendance, container, false)
+        val view = inflater.inflate(R.layout.fragment_show_attendance, container, false)
+        binding = FragmentShowAttendanceBinding.bind(view)
+
+        getButtons()
+        return view
+
+    }
+
+    private fun getButtons() {
+        val hash = (activity as MainBase).arrayListAttend
+
+        binding.txtRfid.text =  hash["rfid_no"]
+
+        binding.txtName.text = hash["name"]
+
+        var sOut = hash["signout"]
+        if(sOut == "null"){
+            sOut =""
+        }
+        binding.txtSignout.text = sOut
+        //hash["signout_by"]
+
+        binding.txtDob.text = hash["date"]
+
+       binding.txtRegion.text = hash["region_name"]
+        binding.txtDistrict.text = hash["district_name"]
+        binding.txtSupervisor.text = hash["sName"]
+        binding.txtRegion.text = hash["region_name"]
+
     }
 
     companion object {
