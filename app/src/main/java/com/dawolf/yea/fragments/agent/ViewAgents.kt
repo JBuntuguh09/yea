@@ -86,6 +86,7 @@ class ViewAgents : Fragment() {
         })
 
         binding.floatAdd.setOnClickListener {
+            storage.randVal = ""
             (activity as MainBase).navTo(RegisterAgent(), "New Agent", "Staff", 1)
         }
 

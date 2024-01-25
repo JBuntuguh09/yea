@@ -21,6 +21,7 @@ import androidx.core.app.ActivityCompat
 import androidx.lifecycle.ViewModelProvider
 import com.dawolf.yea.MainBase
 import com.dawolf.yea.R
+import com.dawolf.yea.RFIDActivity2
 import com.dawolf.yea.database.agent.Agent
 import com.dawolf.yea.database.agent.AgentViewModel
 import com.dawolf.yea.databinding.FragmentRegisterAgentBinding
@@ -95,7 +96,8 @@ class RegisterAgent : Fragment(), LocationListener {
         }
 
         binding.btnScan.setOnClickListener {
-            val intent = Intent(requireContext(), ScanAgent::class.java)
+            storage.project = "Register"
+            val intent = Intent(requireContext(), RFIDActivity2::class.java)
             startActivity(intent)
         }
         val list = ArrayList<String>()

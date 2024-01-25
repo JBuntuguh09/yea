@@ -66,7 +66,7 @@ class RecyclerViewAgents(context: Context, arrayList: ArrayList<HashMap<String, 
             holder.status.setTextColor(context.resources.getColor(R.color.red))
         }
         holder.card.setOnClickListener {
-            storage.randVal = ""
+
             (context as MainBase).arrayListAgent = hash
             (context as MainBase).navTo(ShowAgent(), "Details", "View Agent", 1)
         }

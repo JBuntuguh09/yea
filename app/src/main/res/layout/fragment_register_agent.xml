@@ -90,7 +90,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/edtAddress"
-                android:inputType="phone"
+                android:inputType="text"
                 android:gravity="start"
                 android:minHeight="@dimen/baseline_100dp"
                 android:hint="Enter agent address" />

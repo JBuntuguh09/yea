@@ -72,6 +72,7 @@ class Agents : Fragment() {
     }
     private fun getButtons() {
         binding.floatAdd.setOnClickListener {
+            storage.randVal = ""
             (activity as MainBase).navTo(RegisterAgent(), "New Agent", "Staff", 1)
         }
 

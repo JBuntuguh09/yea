@@ -27,4 +27,6 @@
     <string name="code">Code</string>
     <string name="record_attendance">Record Attendance</string>
     <string name="update">Update</string>
+    <string name="start">Start</string>
+    <string name="stop">Stop</string>
 </resources>

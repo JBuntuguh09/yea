@@ -10,6 +10,7 @@ import android.widget.Toast
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.dawolf.yea.R
+import com.dawolf.yea.RFIDActivity2
 import com.dawolf.yea.adapters.RecyclerViewSign
 import com.dawolf.yea.adapters.RecyclerViewSupervisors
 import com.dawolf.yea.adapters.RecyclerViewUsers
@@ -62,7 +63,8 @@ class Signout : Fragment() {
 
 
         binding.floatAdd.setOnClickListener {
-            val intent = Intent(requireActivity(), AttendanceSignout::class.java)
+            storage.project = "Signout"
+            val intent = Intent(requireActivity(), RFIDActivity2::class.java)
             startActivity(intent)
         }
         getSignouts()

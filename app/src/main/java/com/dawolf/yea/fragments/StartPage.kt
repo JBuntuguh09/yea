@@ -11,6 +11,7 @@ import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import com.dawolf.yea.MainBase
 import com.dawolf.yea.R
+import com.dawolf.yea.RFIDActivity2
 import com.dawolf.yea.Startpage
 import com.dawolf.yea.database.Attendances.Attendances
 import com.dawolf.yea.database.Attendances.AttendancesViewModel
@@ -244,11 +245,13 @@ class StartPage : Fragment() {
 //        ShortCut_To.moveButton(binding.btnSignout, binding.constMain)
 //
         binding.btnAttendance.setOnClickListener {
-            val intent = Intent(requireContext(), Startpage::class.java)
+            storage.project = "Attendance"
+            val intent = Intent(requireContext(), RFIDActivity2::class.java)
             startActivity(intent)
         }
         binding.btnSignout.setOnClickListener {
-            val intent = Intent(requireContext(), AttendanceSignout::class.java)
+            storage.project = "Signout"
+            val intent = Intent(requireContext(), RFIDActivity2::class.java)
             startActivity(intent)
         }
 

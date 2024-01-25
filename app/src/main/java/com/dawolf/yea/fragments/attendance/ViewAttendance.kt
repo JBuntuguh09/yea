@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.dawolf.yea.MainBase
 import com.dawolf.yea.R
+import com.dawolf.yea.RFIDActivity2
 import com.dawolf.yea.Startpage
 import com.dawolf.yea.adapters.RecyclerViewAgents
 import com.dawolf.yea.adapters.RecyclerViewAttendance
@@ -127,7 +128,8 @@ class ViewAttendance : Fragment() {
     private fun getButtons() {
         binding.floatAdd.setOnClickListener {
             //(activity as MainBase).navTo(NewAttendance(), "New Attendance", "View Attendance", 1)
-            val intent = Intent(requireContext(), Startpage::class.java)
+            storage.project = "Attendance"
+            val intent = Intent(requireContext(), RFIDActivity2::class.java)
             startActivity(intent)
         }
 
