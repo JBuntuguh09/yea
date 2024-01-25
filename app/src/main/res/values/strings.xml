@@ -20,4 +20,11 @@
     <string name="region">Region</string>
     <string name="view_attendance">View Attendance</string>
     <string name="scan_your_card">Scan your card</string>
+    <string name="logout">Logout</string>
+
+    <string name="open">Open</string>
+    <string name="close">Close</string>
+    <string name="code">Code</string>
+    <string name="record_attendance">Record Attendance</string>
+    <string name="update">Update</string>
 </resources>

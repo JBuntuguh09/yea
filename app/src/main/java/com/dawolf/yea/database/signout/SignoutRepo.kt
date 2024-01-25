@@ -13,7 +13,15 @@ class SignoutRepo(private val signoutDao: SignoutDao) {
         signoutDao.deleteByRfid(rfid)
     }
 
+    fun deleteByRfidId(rfid: String, id: String){
+        signoutDao.deleteByRfidId(rfid, id)
+    }
+
     fun deleteAll(){
         signoutDao.deleteAll()
+    }
+
+    fun getAllById(id:String) : LiveData<List<Signout>>{
+        return signoutDao.getAllNyId(id)
     }
 }

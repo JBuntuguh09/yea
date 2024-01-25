@@ -80,6 +80,22 @@
                 android:hint="Enter agent phone number" />
         </com.google.android.material.textfield.TextInputLayout>
 
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_marginTop="@dimen/baseline_10dp"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/edtAddress"
+                android:inputType="phone"
+                android:gravity="start"
+                android:minHeight="@dimen/baseline_100dp"
+                android:hint="Enter agent address" />
+        </com.google.android.material.textfield.TextInputLayout>
+
         <Spinner
 
             android:background="@drawable/bg_white"

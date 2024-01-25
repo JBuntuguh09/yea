@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/white"
     tools:context=".fragments.signout.AttendanceSignout">
 
     <androidx.appcompat.widget.Toolbar
@@ -89,15 +90,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:id="@+id/btnOnline"/>
-        <Button
-            android:textStyle="bold"
-            android:backgroundTint="@color/green"
-            android:text="Save"
-            android:layout_marginStart="@dimen/baseline_5dp"
-            android:layout_weight="1"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:id="@+id/btnOffline"/>
+
 
     </LinearLayout>
     <ProgressBar

@@ -1,5 +1,6 @@
 package com.dawolf.yea.fragments.signout
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -60,6 +61,10 @@ class Signout : Fragment() {
         storage = Storage(requireContext())
 
 
+        binding.floatAdd.setOnClickListener {
+            val intent = Intent(requireActivity(), AttendanceSignout::class.java)
+            startActivity(intent)
+        }
         getSignouts()
         return view
     }
@@ -71,7 +76,7 @@ class Signout : Fragment() {
         val api = API()
         GlobalScope.launch {
             try {
-                val res = api.getAPI(Constant.URL+"api/signouts",  requireActivity())
+                val res = api.getAPI(Constant.URL+"api/signout/user/${storage.uSERID!!}",  requireActivity())
                 withContext(Dispatchers.Main){
 
                     setSuperInfo(res)
@@ -107,12 +112,13 @@ class Signout : Fragment() {
                 hash["region_name"] = jObject.getJSONObject("region").optString("name")
                 hash["district_name"] = jObject.getJSONObject("district").optString("name")
                 hash["date"] = ShortCut_To.convertDateFormat(jObject.optString("created_at"))
-
+                hash["sort"] = ShortCut_To.convertForSort(jObject.optString("created_at"))
 
 
                 arrayList.add(hash)
 
             }
+            ShortCut_To.sortDataInvert(arrayList, "sort")
 
             val recyclerViewSign = RecyclerViewSign(requireContext(), arrayList)
             val linearLayoutManager = LinearLayoutManager(requireContext())

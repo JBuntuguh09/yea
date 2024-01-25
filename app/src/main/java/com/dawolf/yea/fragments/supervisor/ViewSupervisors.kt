@@ -74,10 +74,11 @@ class ViewSupervisors : Fragment() {
     }
 
     private fun getOffline() {
-        supervisorViewModel.liveData.observe(requireActivity()){data->
+        supervisorViewModel.getSuper(storage.uSERID!!).observe(requireActivity()){data->
             try {
                 if(data.isNotEmpty()){
                     arrayList.clear()
+
                     for (a in data.indices){
                         val hash = HashMap<String, String>()
                         val jObject = data[a]
@@ -161,7 +162,7 @@ class ViewSupervisors : Fragment() {
         val api = API()
         GlobalScope.launch {
             try {
-                val res = api.getAPI(Constant.URL+"api/supervisors",  requireActivity())
+                val res = api.getAPI(Constant.URL+"api/supervisor/user/${storage.uSERID!!}",  requireActivity())
                 withContext(Dispatchers.Main){
 
                     setSuperInfo(res)
@@ -182,6 +183,7 @@ class ViewSupervisors : Fragment() {
             binding.progressBar.visibility = View.GONE
             val jsonObject = JSONObject(res)
             val data = jsonObject.getJSONArray("data")
+            supervisorViewModel.deleteSuper(storage.uSERID!!)
             for(a in 0 until data.length()){
                 val jObject = data.getJSONObject(a)
                 val hash = HashMap<String, String>()
@@ -201,7 +203,7 @@ class ViewSupervisors : Fragment() {
                 hash["date"] = ShortCut_To.convertDateFormat(jObject.optString("created_at"))
 
                // arrayList.add(hash)
-                val supervisor = Supervisor(jObject.getString("supervisor_id"), jObject.getString("id"), jObject.getString("name"),
+                val supervisor = Supervisor(jObject.getString("supervisor_id"), storage.uSERID!!, jObject.getString("id"), jObject.getString("name"),
                     jObject.getString("phone"), jObject.getString("status"),
                     jObject.getJSONObject("region").getString("name"), jObject.getString("region_id")
                     , jObject.getJSONObject("district").getString("name"), jObject.getString("district_id"), jObject.getString("created_at"))

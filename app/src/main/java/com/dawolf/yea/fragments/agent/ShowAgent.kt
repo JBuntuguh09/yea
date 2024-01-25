@@ -5,9 +5,13 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.ViewModelProvider
 import com.dawolf.yea.MainBase
 import com.dawolf.yea.R
+import com.dawolf.yea.database.agent.AgentViewModel
 import com.dawolf.yea.databinding.FragmentShowAgentBinding
+import com.dawolf.yea.fragments.supervisor.EditSupervisor
+import com.dawolf.yea.resources.ShortCut_To
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -24,6 +28,7 @@ class ShowAgent : Fragment() {
     private var param1: String? = null
     private var param2: String? = null
     private lateinit var binding: FragmentShowAgentBinding
+    private lateinit var agentViewModel: AgentViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,14 +45,44 @@ class ShowAgent : Fragment() {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_show_agent, container, false)
         binding = FragmentShowAgentBinding.bind(view)
+        agentViewModel = ViewModelProvider(requireActivity(), defaultViewModelProviderFactory)[AgentViewModel::class.java]
 
         binding.btnViewAttendance.setOnClickListener {
-
+            (activity as MainBase).binding.imgEdit.visibility = View.GONE
             (activity as MainBase).navTo(AgentAttendance(), "Agent Attendance", "Details", 1)
         }
         getButtons()
+        getWatchers()
         return view
 
+    }
+
+    private fun getWatchers() {
+        var rfid = (activity as MainBase).arrayListAgent["rfid_no"]!!
+        agentViewModel.getAgent(rfid).observe(requireActivity()){data->
+            if(data.isNotEmpty()){
+                val hash = data[0]
+                binding.txtRfid.text = hash.rfid_no
+                binding.txtName.text = hash.name
+                binding.txtDob.text = ShortCut_To.reverseDate(hash.dob, "-", "/")
+                binding.txtPhone.text = hash.phone
+                binding.txtAddress.text = hash.address
+                binding.txtAgentId.text = hash.agent_id
+                binding.txtRegion.text = hash.region_name
+                binding.txtSupervisor.text = hash.supervisor_name
+                binding.txtDistrict.text = hash.district_name
+                binding.txtGPS.text = hash.longitude+"/"+hash.longitude
+                binding.txtGender.text = hash.gender
+                binding.txtRegister.text = ShortCut_To.convertDateFormat(hash.created_at)
+                binding.txtStatus.text = hash.status
+                if(hash.status=="Active"){
+                    binding.txtStatus.setTextColor(requireActivity().resources.getColor(R.color.green))
+                }else{
+                    binding.txtStatus.setTextColor(requireActivity().resources.getColor(R.color.red))
+
+                }
+            }
+        }
     }
 
     private fun getButtons() {
@@ -97,5 +132,12 @@ class ShowAgent : Fragment() {
     override fun onResume() {
         super.onResume()
         (activity as MainBase).binding.txtTopic.text = "Details"
+        (activity as MainBase).binding.imgEdit.visibility = View.VISIBLE
+        (activity as MainBase).binding.imgEdit.setOnClickListener {
+            (activity as MainBase).binding.imgEdit.visibility = View.GONE
+            (activity as MainBase).navTo(EditAgent(), "Edit Agent", "Details", 1)
+        }
     }
+
+
 }

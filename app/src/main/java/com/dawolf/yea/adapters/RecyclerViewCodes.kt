@@ -55,6 +55,11 @@ class RecyclerViewCodes (context: Context, arrayList: ArrayList<HashMap<String, 
         val hash = arrayList[position]
         holder.num.text = (position+1).toString()
         holder.code.text = hash["rfid"]
+//        if(arrayList.size-1 == position){
+//            holder.code.text = "${hash["rfid"]} \n(NEW)"
+//        }else {
+//            holder.code.text = hash["rfid"]
+//        }
        // holder.card
 
 

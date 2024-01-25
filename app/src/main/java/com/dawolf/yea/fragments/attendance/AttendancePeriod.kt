@@ -91,6 +91,7 @@ class AttendancePeriod : Fragment() {
                             hash["district_id"] = jObject.district_id
                             hash["supervisor_id"] = jObject.supervisor_id
                             hash["date"] = ShortCut_To.convertDateFormat(jObject.created_at)
+                            hash["sort"] = ShortCut_To.convertForSort(jObject.created_at)
 
                             hash["region_name"] = jObject.region_name
 
@@ -102,10 +103,6 @@ class AttendancePeriod : Fragment() {
                             //hash["aName"] = jObject.getJSONObject("agent").optString("name")
                             hash["agent_id"] = jObject.agent_id
 
-                            println( ShortCut_To.currentDates +"// mmmmmmmmmmm /////////////"+ ShortCut_To.convertDateFormat3(jObject.created_at)+"//"+
-                                    ShortCut_To.isSameWeek(ShortCut_To.currentDates, ShortCut_To.convertDateFormat3(jObject.created_at))+
-                                    "//>>"+ShortCut_To.isSameMonth(ShortCut_To.currentDates, ShortCut_To.convertDateFormat3(jObject.created_at))+
-                                    "//"+jObject.created_at)
 
                             if (storage.period == "day" && ShortCut_To.currentDates == ShortCut_To.convertDateFormat3(jObject.created_at)){
                                 arrayList.add(hash)
@@ -118,7 +115,7 @@ class AttendancePeriod : Fragment() {
 
                         }
 
-
+                        ShortCut_To.sortDataInvert(arrayList, "sort")
                         val recyclerViewAttendance = RecyclerViewAttendance(requireContext(), arrayList)
                         val linearLayoutManager = LinearLayoutManager(requireContext())
                         binding.recycler.layoutManager = linearLayoutManager

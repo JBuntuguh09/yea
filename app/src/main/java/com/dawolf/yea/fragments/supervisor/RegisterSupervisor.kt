@@ -8,8 +8,11 @@ import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Toast
+import androidx.lifecycle.ViewModelProvider
 import com.dawolf.yea.MainBase
 import com.dawolf.yea.R
+import com.dawolf.yea.database.supervisor.Supervisor
+import com.dawolf.yea.database.supervisor.SupervisorViewModel
 import com.dawolf.yea.databinding.FragmentRegisterSupervisorBinding
 import com.dawolf.yea.resources.Constant
 import com.dawolf.yea.resources.ShortCut_To
@@ -42,6 +45,7 @@ class RegisterSupervisor : Fragment() {
     private lateinit var storage: Storage
     private var arrayListRegion = ArrayList<HashMap<String, String>>()
     private var arrayListDistrict = ArrayList<HashMap<String, String>>()
+    private lateinit var supervisorViewModel: SupervisorViewModel
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -60,7 +64,7 @@ class RegisterSupervisor : Fragment() {
         val view = inflater.inflate(R.layout.fragment_register_supervisor, container, false)
         binding = FragmentRegisterSupervisorBinding.bind(view)
         storage = Storage(requireContext())
-
+        supervisorViewModel = ViewModelProvider(requireActivity(), defaultViewModelProviderFactory)[SupervisorViewModel::class.java]
 
 
         getButtons()
@@ -216,9 +220,20 @@ class RegisterSupervisor : Fragment() {
 
             val jsonObject = JSONObject(res)
             val mess = jsonObject.optString("message")
+            try {
+                val data = jsonObject.getJSONObject("data")
+                val  supervisor = Supervisor(data.optString("supervisor_id"), storage.uSERID!!,data.optString("id"), data.optString("name"),
+                    data.optString("phone"), "Active", binding.spinRegion.selectedItem.toString(), data.optString("region_id"),
+                    binding.spinDistrict.selectedItem.toString(), data.optString("district_id"), data.optString("created_at"))
+
+                supervisorViewModel.insert(supervisor)
+            }catch (e: Exception){
+
+            }
 
             Toast.makeText(requireContext(), mess, Toast.LENGTH_SHORT).show()
             if(mess == "Supervisor created successfully"){
+
                 requireActivity().onBackPressed()
             }
             binding.progressBar.visibility = View.GONE

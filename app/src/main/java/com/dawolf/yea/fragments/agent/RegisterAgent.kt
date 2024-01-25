@@ -18,8 +18,11 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
+import androidx.lifecycle.ViewModelProvider
 import com.dawolf.yea.MainBase
 import com.dawolf.yea.R
+import com.dawolf.yea.database.agent.Agent
+import com.dawolf.yea.database.agent.AgentViewModel
 import com.dawolf.yea.databinding.FragmentRegisterAgentBinding
 import com.dawolf.yea.resources.Constant
 import com.dawolf.yea.resources.MyLocationListener
@@ -58,6 +61,7 @@ class RegisterAgent : Fragment(), LocationListener {
     private val LOCATION_PERMISSION_REQUEST_CODE = 1
     var lat = "0.00"
     var long="0.00"
+    private lateinit var agentViewModel: AgentViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -76,14 +80,20 @@ class RegisterAgent : Fragment(), LocationListener {
         binding = FragmentRegisterAgentBinding.bind(view)
         storage = Storage(requireContext())
         locationManager = requireActivity().getSystemService(Context.LOCATION_SERVICE) as LocationManager
-
-        ShortCut_To.timeStamp()
+        agentViewModel = ViewModelProvider(requireActivity(), defaultViewModelProviderFactory)[AgentViewModel::class.java]
 
         getButtons()
         return view
     }
 
     private fun getButtons() {
+        (activity as MainBase).idCheck.observe(requireActivity()){data->
+
+            if (data!=null){
+                storage.randVal = data
+            }
+        }
+
         binding.btnScan.setOnClickListener {
             val intent = Intent(requireContext(), ScanAgent::class.java)
             startActivity(intent)
@@ -153,8 +163,8 @@ class RegisterAgent : Fragment(), LocationListener {
         (activity as MainBase).regionViewModel.liveData.observe(requireActivity()){ data->
             if(data.isNotEmpty()){
 
-                val list = ArrayList<String>()
-                list.add("Select region")
+                val lists = ArrayList<String>()
+                lists.add("Select region")
                 for(a in data.indices){
                     val jObject = data[a]
                     val hash = HashMap<String, String>()
@@ -163,12 +173,12 @@ class RegisterAgent : Fragment(), LocationListener {
                     hash["districts"] =jObject.districts
 
                     arrayListRegion.add(hash)
-                    list.add(jObject.name)
+                    lists.add(jObject.name)
 
                 }
 
                 if(arrayListRegion.size>0){
-                    val adapter = ArrayAdapter(requireContext(), R.layout.layout_spinner_list, list)
+                    val adapter = ArrayAdapter(requireContext(), R.layout.layout_spinner_list, lists)
                     adapter.setDropDownViewResource(R.layout.layout_dropdown)
                     binding.spinRegion.adapter = adapter
 
@@ -201,6 +211,7 @@ class RegisterAgent : Fragment(), LocationListener {
         try {
             val jsonArray = JSONArray(districts)
             val list = ArrayList<String>()
+            arrayListDistrict.clear()
             list.add("Select district")
             for (a in 0 until jsonArray.length()){
                 val jsonObject = jsonArray.getJSONObject(a)
@@ -236,6 +247,7 @@ class RegisterAgent : Fragment(), LocationListener {
             "dob" to ShortCut_To.reverseDate(binding.edtDob.text.toString(), "/",  "-"),
             "region_id" to arrayListRegion[binding.spinRegion.selectedItemPosition-1]["id"]!!,
             "district_id" to arrayListDistrict[binding.spinDistrict.selectedItemPosition-1]["id"]!!,
+            "address" to binding.edtAddress.text.toString(),
             "latitude" to lat,
             "longitude" to long
         )
@@ -277,8 +289,21 @@ class RegisterAgent : Fragment(), LocationListener {
             val jsonObject = JSONObject(res)
             val mess = jsonObject.optString("message")
 
+
             Toast.makeText(requireContext(), mess, Toast.LENGTH_SHORT).show()
             if(mess == "Agent created successfully"){
+                try {
+                    val data = jsonObject.getJSONObject("data")
+                    val agent = Agent(rfid, storage.uSERID!!, data.optString("id"), data.optString("agent_id"), data.optString("name"), data.optString("dob"),
+                        data.optString("phone"), data.optString("address"), binding.spinRegion.selectedItem.toString(), data.optString("region_id"),
+                        binding.spinDistrict.selectedItem.toString(), data.optString("district_id"), long, lat, "", "", "",
+                        "", "Active", data.optString("created_at"), data.optString("updated_at"), data.optString("gender"),
+                        )
+
+                    agentViewModel.insert(agent)
+                }catch (_: Exception){
+
+                }
                 requireActivity().onBackPressed()
             }
             binding.progressBar.visibility = View.GONE

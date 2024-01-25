@@ -152,6 +152,7 @@ class NewAttendance : Fragment() {
         try {
             val jsonArray =JSONArray(districts)
             val list = ArrayList<String>()
+            arrayListDistrict.clear()
             list.add("Select district")
             for (a in 0 until jsonArray.length()){
                 val jsonObject = jsonArray.getJSONObject(a)

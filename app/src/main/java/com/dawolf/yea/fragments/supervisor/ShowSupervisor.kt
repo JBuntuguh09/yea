@@ -5,9 +5,12 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.ViewModelProvider
 import com.dawolf.yea.MainBase
 import com.dawolf.yea.R
+import com.dawolf.yea.database.supervisor.SupervisorViewModel
 import com.dawolf.yea.databinding.FragmentShowSupervisorBinding
+import com.dawolf.yea.resources.ShortCut_To
 import com.dawolf.yea.resources.Storage
 
 // TODO: Rename parameter arguments, choose names that match
@@ -26,7 +29,7 @@ class ShowSupervisor : Fragment() {
     private var param2: String? = null
     private lateinit var binding: FragmentShowSupervisorBinding
     private lateinit var storage: Storage
-
+    private lateinit var supervisorViewModel: SupervisorViewModel
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -42,9 +45,34 @@ class ShowSupervisor : Fragment() {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_show_supervisor, container, false)
         binding = FragmentShowSupervisorBinding.bind(view)
+        supervisorViewModel = ViewModelProvider(requireActivity(), defaultViewModelProviderFactory)[SupervisorViewModel::class.java]
 
-        getButtons()
+
+        getWatchers()
         return view
+    }
+
+    fun getWatchers(){
+        val id = (activity as MainBase).arrayListSuper["supervisor_id"]!!
+        supervisorViewModel.getSuper(id).observe(requireActivity()){data->
+            if (data.isNotEmpty()){
+                val hash = data[0]
+
+                binding.txtSupervisorid.text = hash.supervisor_id
+                binding.txtName.text = hash.name
+                binding.txtPhone.text = hash.phone
+                binding.txtRegion.text = hash.region_name
+                binding.txtDistrict.text = hash.district_name
+                binding.txtRegister.text = ShortCut_To.convertDateFormat(hash.created_at)
+                binding.txtStatus.text = hash.status
+                if(hash.status=="Active"){
+                    binding.txtStatus.setTextColor(requireActivity().resources.getColor(R.color.green))
+                }else{
+                    binding.txtStatus.setTextColor(requireActivity().resources.getColor(R.color.red))
+
+                }
+            }
+        }
     }
 
     private fun getButtons() {
@@ -54,7 +82,7 @@ class ShowSupervisor : Fragment() {
         binding.txtPhone.text = hash["phone"]
         binding.txtRegion.text = hash["region_name"]
         binding.txtDistrict.text = hash["district_name"]
-        binding.txtRegister.text = hash["date"]
+        binding.txtRegister.text = ShortCut_To.convertDateFormat(hash["date"]!!)
         binding.txtStatus.text = hash["status"]
         if(hash["status"]=="Active"){
             binding.txtStatus.setTextColor(requireActivity().resources.getColor(R.color.green))
@@ -63,6 +91,16 @@ class ShowSupervisor : Fragment() {
 
         }
 
+    }
+
+    override fun onResume() {
+        super.onResume()
+        (activity as MainBase).binding.txtTopic.text = "Details"
+        (activity as MainBase).binding.imgEdit.visibility = View.VISIBLE
+        (activity as MainBase).binding.imgEdit.setOnClickListener {
+            (activity as MainBase).binding.imgEdit.visibility = View.GONE
+            (activity as MainBase).navTo(EditSupervisor(), "Edit Supervisor", "Details", 1)
+        }
     }
 
     companion object {

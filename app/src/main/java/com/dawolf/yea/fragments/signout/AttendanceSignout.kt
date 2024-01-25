@@ -46,7 +46,7 @@ class AttendanceSignout : AppCompatActivity() {
     private lateinit var binding: ActivityAttendanceSignoutBinding
     private lateinit var storage: Storage
     val arrayList = ArrayList<HashMap<String, String>>()
-    var b=0
+    private var b=0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -75,15 +75,16 @@ class AttendanceSignout : AppCompatActivity() {
                 Toast.makeText(this, "Scan you card", Toast.LENGTH_SHORT).show()
             }else{
                 for (b in 0 until arrayList.size){
-                    val send = Send(0, arrayList[b]["rfid"]!!, "signout", arrayList[b]["signout_date"]!!,"", "")
+                    val send = Send(0, arrayList[b]["rfid"]!!, "signout", arrayList[b]["signout_date"]!!,"", "", "", "")
                     sendViewModel.insert(send)
+                    println("send $send")
 
                 }
                 finish()
             }
         }
 
-        signoutViewModel.liveData.observe(this){data->
+        signoutViewModel.getAllById(storage.uSERID!!).observe(this){data->
             if(data.isNotEmpty()){
                 b=0
                 arrayList.clear()
@@ -171,7 +172,8 @@ class AttendanceSignout : AppCompatActivity() {
                         val hexString = blockData.joinToString("") { it.toUByte().toString(16).padStart(2, '0') }
 
                         println("Hexadecimal Data from Sector $sector, Block $blockNumber: $hexString")
-                        val signout = Signout(hexString, ShortCut_To.getCurrentDateTime(), false)
+                        val signout = Signout(hexString, storage.uSERID!!,ShortCut_To.getCurrentDateTime(), false)
+
                         signoutViewModel.insert(signout)
                     } else {
                         println("MifareClassic is null or not connected.")
@@ -243,59 +245,5 @@ class AttendanceSignout : AppCompatActivity() {
     }
 
 
-    private fun sendData(arrList: HashMap<String, String>, progress: ProgressBar =binding.progressBar, button: Button =binding.btnOnline) = runBlocking {
 
-        val api = API()
-        val body = mapOf(
-            "signout_date" to arrList["signout_date"]!!
-        )
-        try {
-            GlobalScope.launch {
-                val res:String = api.postAPIWithHeader(
-                    Constant.URL + "api/signout/update/:id",
-                    body,
-                    this@AttendanceSignout
-                )
-
-                withContext(Dispatchers.Main){
-                    if(res == "[]"){
-                        Toast.makeText(this@AttendanceSignout, "Error: Failed to create attendance", Toast.LENGTH_SHORT).show()
-                        progress.visibility = View.GONE
-                        button.isEnabled = true
-
-
-                    }else {
-                       // setInfo(res,,progress, button)
-                    }
-                }
-            }
-        }catch (e: Exception){
-            e.printStackTrace()
-            Toast.makeText(this@AttendanceSignout, "Error: Failed to create supervisor", Toast.LENGTH_SHORT).show()
-            progress.visibility = View.GONE
-            button.isEnabled = true
-
-
-        }
-
-    }
-
-    private fun setInfo(res: String, rfid: String, progress: ProgressBar =binding.progressBar, button: Button =binding.btnOnline) {
-        try {
-            val jsonObject = JSONObject(res)
-            val mess = jsonObject.optString("message")
-
-            Toast.makeText(this@AttendanceSignout, mess, Toast.LENGTH_SHORT).show()
-            signoutViewModel.deleteByRfid(rfid)
-            if(mess == "Signout updated successfully"){
-                finish()
-            }
-            progress.visibility = View.GONE
-            button.isEnabled = true
-        }catch (e: Exception){
-            e.printStackTrace()
-            progress.visibility = View.GONE
-            button.isEnabled = true
-        }
-    }
 }

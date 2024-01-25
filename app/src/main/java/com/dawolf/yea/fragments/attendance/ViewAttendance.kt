@@ -1,5 +1,6 @@
 package com.dawolf.yea.fragments.attendance
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -12,6 +13,7 @@ import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.dawolf.yea.MainBase
 import com.dawolf.yea.R
+import com.dawolf.yea.Startpage
 import com.dawolf.yea.adapters.RecyclerViewAgents
 import com.dawolf.yea.adapters.RecyclerViewAttendance
 import com.dawolf.yea.adapters.RecyclerViewSupervisors
@@ -89,6 +91,7 @@ class ViewAttendance : Fragment() {
                         hash["district_id"] = jObject.district_id
                         hash["supervisor_id"] = jObject.supervisor_id
                         hash["date"] = ShortCut_To.convertDateFormat(jObject.created_at)
+                        hash["sort"] = ShortCut_To.convertForSort(jObject.created_at)
 
                         hash["region_name"] = jObject.region_name
 
@@ -106,7 +109,7 @@ class ViewAttendance : Fragment() {
 
 
                     }
-                    ShortCut_To.sortData(arrayList, "sDate")
+                    ShortCut_To.sortDataInvert(arrayList, "sort")
 
                     val recyclerViewAttendance = RecyclerViewAttendance(requireContext(), arrayList)
                     val linearLayoutManager = LinearLayoutManager(requireContext())
@@ -123,7 +126,9 @@ class ViewAttendance : Fragment() {
 
     private fun getButtons() {
         binding.floatAdd.setOnClickListener {
-            (activity as MainBase).navTo(NewAttendance(), "New Attendance", "View Attendance", 1)
+            //(activity as MainBase).navTo(NewAttendance(), "New Attendance", "View Attendance", 1)
+            val intent = Intent(requireContext(), Startpage::class.java)
+            startActivity(intent)
         }
 
         binding.edtSearch.setOnTouchListener(View.OnTouchListener { v, event ->
@@ -169,7 +174,7 @@ class ViewAttendance : Fragment() {
         GlobalScope.launch {
             try {
 
-                val res = api.getAPI(Constant.URL+"api/attendances",  requireActivity())
+                val res = api.getAPI(Constant.URL+"api/attendance/user/${storage.uSERID!!}",  requireActivity())
                 withContext(Dispatchers.Main){
                     println(res)
                     setAgentInfo(res)
@@ -190,6 +195,7 @@ class ViewAttendance : Fragment() {
             var num = 0
             val jsonObject = JSONObject(res)
             val data = jsonObject.getJSONArray("data")
+            attendancesViewModel.deleteBid(storage.uSERID!!)
             for(a in 0 until data.length()){
                 val jObject = data.getJSONObject(a)
                 val hash = HashMap<String, String>()
@@ -215,7 +221,7 @@ class ViewAttendance : Fragment() {
                 hash["agent_id"] = jObject.getJSONObject("agent").optString("id")
 
                // arrayList.add(hash)
-                val attendances = Attendances(jObject.getString("id"), jObject.getString("rfid_no"),
+                val attendances = Attendances(jObject.getString("id"), storage.uSERID!!,jObject.getString("rfid_no"),
                     jObject.getJSONObject("region").getString("name"), jObject.getString("region_id"),
                     jObject.getJSONObject("district").getString("name"), jObject.getString("district_id"),
                     jObject.getJSONObject("supervisor").getString("name"), jObject.getJSONObject("supervisor").getString("id"),

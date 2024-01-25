@@ -59,13 +59,13 @@ class StaffBase : Fragment() {
 
         }.attach()
 
-        storage.currPage = "Staff"
+        storage.currPage = "Registration"
         return view
     }
 
     override fun onResume() {
         super.onResume()
-        (activity as MainBase).binding.txtTopic.text = "Staff"
+        (activity as MainBase).binding.txtTopic.text = "Registration"
     }
 
     companion object {

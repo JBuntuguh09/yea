@@ -90,7 +90,7 @@ class Agents : Fragment() {
             false
         })
 
-        agentViewModel.liveData.observe(requireActivity()){data->
+        agentViewModel.getAgent(storage.uSERID!!).observe(requireActivity()){data->
             try {
                 if(data.isNotEmpty()){
                     arrayList.clear()
@@ -165,7 +165,7 @@ class Agents : Fragment() {
         GlobalScope.launch {
             try {
 
-                val res = api.getAPI(Constant.URL+"api/agents",  requireActivity())
+                val res = api.getAPI(Constant.URL+"api/agent/user/${storage.uSERID!!}",  requireActivity())
                 withContext(Dispatchers.Main){
                     println(res)
                     setAgentInfo(res)
@@ -187,6 +187,7 @@ class Agents : Fragment() {
             val jsonObject = JSONObject(res)
             val data = jsonObject.getJSONArray("data")
             arrayList.clear()
+            agentViewModel.deleteAgent(storage.uSERID!!)
             for(a in 0 until data.length()){
                 val jObject = data.getJSONObject(a)
                 val hash = HashMap<String, String>()
@@ -214,7 +215,7 @@ class Agents : Fragment() {
                 hash["sNumber"] = jObject.getJSONObject("supervisor").optString("phone")
 
 //                arrayList.add(hash)
-                val agent = Agent(jObject.getString("rfid_no"), jObject.getString("id"), jObject.getString("agent_id"),
+                val agent = Agent(jObject.getString("rfid_no"), storage.uSERID!!,jObject.getString("id"), jObject.getString("agent_id"),
                     jObject.getString("name"), jObject.getString("dob"), jObject.getString("phone"), jObject.getString("address"),
                     jObject.getJSONObject("region").getString("name"), jObject.getString("region_id")
                     , jObject.getJSONObject("district").getString("name"), jObject.getString("district_id"),

@@ -7,6 +7,7 @@
     tools:context=".fragments.StaffBase">
 
     <com.google.android.material.tabs.TabLayout
+        android:background="@color/white"
         style="@style/TextAppearance.MaterialComponents.Headline5"
         app:layout_constraintTop_toTopOf="parent"
         android:id="@+id/tabLayout"

@@ -32,5 +32,8 @@ interface LoginDao {
     @Query("delete from login")
     fun deleteUsers()
 
+    @Query("update login set password = :pword, regionId= :regionId, districtId= :districtId, changedPassword= :passChanged where id = :userId")
+    fun updateConfirm(pword: String, regionId: String, districtId:String, passChanged: String, userId: String)
+
 
 }

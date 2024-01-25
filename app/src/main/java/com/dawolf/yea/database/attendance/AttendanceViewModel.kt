@@ -39,4 +39,16 @@ class AttendanceViewModel(application: Application): AndroidViewModel(applicatio
             repo.deleteAll()
         }
     }
+
+    fun getAllById(id: String): LiveData<List<Attendance>>{
+        return repo.getAllById(id)
+    }
+
+    fun deleteAllByRfidId(rfid: String, id: String){
+        viewModelScope.launch(Dispatchers.IO) {
+            repo.deleteAllById(rfid, id)
+        }
+    }
+
+
 }

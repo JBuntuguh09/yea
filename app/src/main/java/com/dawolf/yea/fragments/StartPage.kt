@@ -11,6 +11,7 @@ import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import com.dawolf.yea.MainBase
 import com.dawolf.yea.R
+import com.dawolf.yea.Startpage
 import com.dawolf.yea.database.Attendances.Attendances
 import com.dawolf.yea.database.Attendances.AttendancesViewModel
 import com.dawolf.yea.database.agent.Agent
@@ -103,7 +104,7 @@ class StartPage : Fragment() {
     }
 
     private fun getOffline() {
-        agentViewModel.liveData.observe(viewLifecycleOwner){data->
+        agentViewModel.getAgent(storage.uSERID!!).observe(viewLifecycleOwner){data->
             var num= 0
             if (data.isNotEmpty()){
                 for(a in data.indices) {
@@ -117,7 +118,7 @@ class StartPage : Fragment() {
             }
         }
 
-        supervisorViewModel.liveData.observe(viewLifecycleOwner){data->
+        supervisorViewModel.getSuper(storage.uSERID!!).observe(viewLifecycleOwner){data->
             var num= 0
             if (data.isNotEmpty()){
                 for(a in data.indices) {
@@ -192,12 +193,12 @@ class StartPage : Fragment() {
 
     private fun getButtons() {
         binding.cardStaff.setOnClickListener {
-            ShortCut_To.blinkCardView(binding.cardStaff, requireActivity())
-            (activity as MainBase).navTo(StaffBase(), "Staff", "Start", 1)
+          //  ShortCut_To.blinkCardView(binding.cardStaff, requireActivity())
+            (activity as MainBase).navTo(StaffBase(), "Registration", "Start", 1)
         }
 
         binding.cardAttendance.setOnClickListener {
-            ShortCut_To.blinkCardView(binding.cardStaff, requireActivity())
+//            ShortCut_To.blinkCardView(binding.cardStaff, requireActivity())
             (activity as MainBase).navTo(ViewAttendance(), "Attendance", "Start", 1)
         }
 
@@ -243,7 +244,8 @@ class StartPage : Fragment() {
 //        ShortCut_To.moveButton(binding.btnSignout, binding.constMain)
 //
         binding.btnAttendance.setOnClickListener {
-            (activity as MainBase).navTo(NewAttendance(), "New Attendance", "Welcome", 1)
+            val intent = Intent(requireContext(), Startpage::class.java)
+            startActivity(intent)
         }
         binding.btnSignout.setOnClickListener {
             val intent = Intent(requireContext(), AttendanceSignout::class.java)
@@ -269,7 +271,7 @@ class StartPage : Fragment() {
             try {
 
 
-                val res = api.getAPI(Constant.URL+"api/agents",  requireActivity())
+                val res = api.getAPI(Constant.URL+"api/agent/user/${storage.uSERID!!}",  requireActivity())
                 withContext(Dispatchers.Main){
 
                     setAgentInfo(res)
@@ -290,12 +292,13 @@ class StartPage : Fragment() {
             var num = 0
             val jsonObject = JSONObject(res)
             val data = jsonObject.getJSONArray("data")
+            agentViewModel.deleteAgent(storage.uSERID!!)
             for(a in 0 until data.length()){
                 val jObject = data.getJSONObject(a)
                 if (jObject.getString("status")=="Active"){
                     num +=1
                 }
-                val agent = Agent(jObject.getString("rfid_no"), jObject.getString("id"), jObject.getString("agent_id"),
+                val agent = Agent(jObject.getString("rfid_no"), storage.uSERID!!,jObject.getString("id"), jObject.getString("agent_id"),
                     jObject.getString("name"), jObject.getString("dob"), jObject.getString("phone"), jObject.getString("address"),
                     jObject.getJSONObject("region").getString("name"), jObject.getString("region_id")
                     , jObject.getJSONObject("district").getString("name"), jObject.getString("district_id"),
@@ -322,7 +325,7 @@ class StartPage : Fragment() {
             try {
 
 
-                val res = api.getAPI(Constant.URL+"api/supervisors",  requireActivity())
+                val res = api.getAPI(Constant.URL+"api/supervisor/user/${storage.uSERID!!}",  requireActivity())
                 withContext(Dispatchers.Main){
 
                     setSuperInfo(res)
@@ -343,12 +346,13 @@ class StartPage : Fragment() {
             var num = 0
             val jsonObject = JSONObject(res)
             val data = jsonObject.getJSONArray("data")
+            supervisorViewModel.deleteSuper(storage.uSERID!!)
             for(a in 0 until data.length()){
                 val jObject = data.getJSONObject(a)
                 if (jObject.getString("status")=="Active"){
                     num +=1
                 }
-                val supervisor = Supervisor(jObject.getString("supervisor_id"), jObject.getString("id"), jObject.getString("name"),
+                val supervisor = Supervisor(jObject.getString("supervisor_id"), storage.uSERID!!,jObject.getString("id"), jObject.getString("name"),
                     jObject.getString("phone"), jObject.getString("status"),
                     jObject.getJSONObject("region").getString("name"), jObject.getString("region_id")
                     , jObject.getJSONObject("district").getString("name"), jObject.getString("district_id"), jObject.getString("created_at"))
@@ -372,7 +376,7 @@ class StartPage : Fragment() {
             try {
 
 
-                val res = api.getAPI(Constant.URL+"api/attendances",  requireActivity())
+                val res = api.getAPI(Constant.URL+"api/attendance/user/${storage.uSERID!!}",  requireActivity())
                 withContext(Dispatchers.Main){
 
                     setAttendInfo(res)
@@ -381,7 +385,7 @@ class StartPage : Fragment() {
                 e.printStackTrace()
                 binding.progressBar.visibility = View.GONE
                 withContext(Dispatchers.Main){
-                    Toast.makeText(requireContext(), "No data found.", Toast.LENGTH_SHORT).show()
+                   // Toast.makeText(requireContext(), "No data found.", Toast.LENGTH_SHORT).show()
 
                 }
             }
@@ -397,6 +401,7 @@ class StartPage : Fragment() {
             var month = 0
             val jsonObject = JSONObject(res)
             val data = jsonObject.getJSONArray("data")
+            attendancesViewModel.deleteBid(storage.uSERID!!)
             for(a in 0 until data.length()){
                 val jObject = data.getJSONObject(a)
 
@@ -413,7 +418,7 @@ class StartPage : Fragment() {
                 }
 
 
-                val attendances = Attendances(jObject.getString("id"), jObject.getString("rfid_no"),
+                val attendances = Attendances(jObject.getString("id"), storage.uSERID!!,jObject.getString("rfid_no"),
                     jObject.getJSONObject("region").getString("name"), jObject.getString("region_id"),
                     jObject.getJSONObject("district").getString("name"), jObject.getString("district_id"),
                     jObject.getJSONObject("supervisor").getString("name"), jObject.getJSONObject("supervisor").getString("id"),

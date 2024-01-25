@@ -6,6 +6,9 @@ import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.res.ResourcesCompat
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.dawolf.yea.database.login.Login
 import com.dawolf.yea.database.login.LoginViewModel
@@ -59,10 +62,27 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    fun <T> LiveData<T>.observeOnce(lifecycleOwner: LifecycleOwner, observer: Observer<T>) {
+        observe(lifecycleOwner, object : Observer<T> {
+            override fun onChanged(value: T) {
+                removeObserver(this)
+
+                // Call the original observer
+                if (value != null) {
+                    observer.onChanged(value)
+                }
+            }
+
+
+        })
+    }
     private fun loginTest() {
+        storage.first1 = 0
         val res = loginViewModel.getUser(binding.edtEmail.text.toString(), binding.edtPassword.text.toString())
-        res.observe(this) { data ->
+
+        res.observeOnce(this) { data ->
             val check = 0
+
             if (data.isNotEmpty()) {
                     val hash = HashMap<String, String>()
                     val a=0
@@ -78,26 +98,34 @@ class MainActivity : AppCompatActivity() {
                     hash["changedPassword"] = data[a].changedPassword
                     hash["emailVerified"] = data[a].emailVerified
 
+                        storage.regionId = hash["region_id"]
+                        storage.districtId = hash["district_id"]
                         storage.tokenId = "Bearer ${data[a].token}"
                         storage.token = data[a].token
                         storage.uSERID = data[a].id
                         storage.uSERNAME = data[a].name
                         storage.email = data[a].email
+                        storage.phone = data[a].phone
                         storage.pASSWORD = binding.edtPassword.text.toString()
+
+                println("bbbbbb : ${hash["changedPassword"]}//${storage.regionId}//${storage.districtId}")
+                if (hash["changedPassword"].toString() == "null" || storage.regionId == "null" || storage.districtId=="null"){
+                    storage.first1 = 1
+                }
                         try {
                             val intent = Intent(this, MainBase::class.java)
                             startActivity(intent)
                         }catch (e: Exception){
                             e.printStackTrace()
                         }
-                    return@observe
+
             } else {
                 runOnUiThread {
                     binding.progressBar.visibility = View.VISIBLE
                     binding.btnLogin.isEnabled = false
                 }
                 loginTo()
-                return@observe
+
             }
         }
     }
@@ -167,6 +195,7 @@ class MainActivity : AppCompatActivity() {
                 val email_verified_at  = data["email_verified_at"].toString()
 
 
+
                 val user = Login(
                     userId, token, username, email,
                     binding.edtPassword.text.toString(),
@@ -176,13 +205,16 @@ class MainActivity : AppCompatActivity() {
                 loginViewModel.insert(user)
 
 
-
+                storage.regionId = region_id
+                storage.districtId = district_id
                 storage.tokenId = "Bearer $token"
                 storage.token = token
                 storage.uSERID = userId
                 storage.uSERNAME = username
                 storage.email = email
+                storage.phone = phone
                 storage.pASSWORD = binding.edtPassword.text.toString()
+
 
 
                 val intent = Intent(this, MainBase::class.java)

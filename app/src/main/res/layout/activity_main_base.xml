@@ -7,7 +7,7 @@
     android:orientation="vertical"
     tools:context=".MainBase">
     <androidx.appcompat.widget.Toolbar
-
+        android:background="@color/white"
         android:id="@+id/tabSettings"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -38,6 +38,16 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
+
+            <ImageView
+                android:visibility="gone"
+                android:id="@+id/imgEdit"
+                app:layout_constraintTop_toTopOf="parent"
+                android:padding="@dimen/baseline_10dp"
+                android:layout_width="@dimen/baseline_36dp"
+                android:layout_height="36dp"
+                android:src="@drawable/pencil"
+                app:layout_constraintEnd_toEndOf="@+id/txtTopic" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.appcompat.widget.Toolbar>
@@ -108,7 +118,7 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
         <com.google.android.material.navigation.NavigationView
             android:paddingTop="10dp"
-            android:id="@+id/navMain"
+            android:id="@+id/navView"
             android:layout_gravity="start"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
@@ -125,49 +135,70 @@
                     android:layout_height="wrap_content">
 
                     <ImageView
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
+                        android:id="@+id/imgPic"
                         android:layout_width="60dp"
                         android:layout_height="60dp"
                         android:src="@drawable/logo"
-                        android:id="@+id/imgPic"/>
+
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
 
                     <TextView
+                        android:textAlignment="textStart"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         app:layout_constraintStart_toEndOf="@id/imgPic"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintTop_toTopOf="parent"
-                        android:text="name"
+                        android:text="WELCOME"
                         android:textStyle="bold"
                         android:id="@+id/txtName"
+                        android:textSize="@dimen/baseline_19dp"
                         android:layout_marginStart="10dp"
                         android:layout_marginEnd="10dp"
                         />
 
                     <TextView
+                        android:layout_marginTop="@dimen/baseline_5dp"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         app:layout_constraintStart_toEndOf="@id/imgPic"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/txtName"
                         android:text="Partner"
-                        android:id="@+id/txtPosition"
+                        android:id="@+id/txtPhone"
+                        android:textAlignment="textStart"
                         android:layout_marginStart="10dp"
                         android:layout_marginEnd="10dp"
                         />
 
                     <TextView
-                        android:textColor="@color/orange"
+                        android:layout_marginTop="@dimen/baseline_5dp"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         app:layout_constraintStart_toEndOf="@id/imgPic"
                         app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/txtPosition"
-                        android:id="@+id/txtRole"
+                        app:layout_constraintTop_toBottomOf="@id/txtPhone"
+                        android:text="Partner"
+                        android:id="@+id/txtEmail"
+                        android:textAlignment="textStart"
                         android:layout_marginStart="10dp"
                         android:layout_marginEnd="10dp"
                         />
+
+
+                        />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/baseline_2dp"
+                        android:background="@color/grey"
+                        app:layout_constraintTop_toBottomOf="@+id/txtEmail"
+                        android:layout_marginTop="@dimen/baseline_20dp"
+                        android:layout_marginBottom="@dimen/baseline_20dp"/>
+
+
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -176,7 +207,7 @@
                 <ScrollView
                     android:layout_marginTop="20dp"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="match_parent">
                     <LinearLayout
                         android:orientation="vertical"
                         android:layout_width="match_parent"
@@ -185,9 +216,120 @@
                             android:paddingStart="20dp"
                             android:paddingEnd="10dp"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
+                            android:layout_height="match_parent"
                             android:id="@+id/linList"
-                            android:orientation="vertical"/>
+                            android:orientation="vertical">
+
+
+                            <androidx.cardview.widget.CardView
+                                android:id="@+id/cardStaff"
+                                android:elevation="@dimen/baseline_50dp"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                >
+                                <TextView
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:text="Registration"
+                                    android:textStyle="bold"
+                                    android:textAllCaps="true"
+                                    android:textSize="16sp"
+                                    android:layout_gravity="center_vertical"
+                                    android:drawablePadding="@dimen/baseline_5dp"
+                                    android:padding="@dimen/baseline_10dp"
+                                    app:drawableStartCompat="@drawable/user_small" />
+
+                            </androidx.cardview.widget.CardView>
+
+                            <androidx.cardview.widget.CardView
+                                android:id="@+id/cardAttendance"
+                                android:elevation="@dimen/baseline_50dp"
+                                android:layout_marginTop="@dimen/baseline_5dp"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                >
+                                <TextView
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/attendance"
+                                    android:textAllCaps="true"
+                                    android:textStyle="bold"
+                                    android:textSize="16sp"
+                                    android:layout_gravity="center_vertical"
+                                    android:drawablePadding="@dimen/baseline_5dp"
+                                    android:padding="@dimen/baseline_10dp"
+                                    app:drawableStartCompat="@drawable/calendar_small" />
+
+                            </androidx.cardview.widget.CardView>
+
+                            <androidx.cardview.widget.CardView
+                                android:visibility="gone"
+                                android:id="@+id/cardUsers"
+                                android:elevation="@dimen/baseline_50dp"
+                                android:layout_marginTop="@dimen/baseline_5dp"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                >
+                                <TextView
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/users"
+                                    android:textAllCaps="true"
+                                    android:textStyle="bold"
+                                    android:textSize="16sp"
+                                    android:layout_gravity="center_vertical"
+                                    android:drawablePadding="@dimen/baseline_5dp"
+                                    android:padding="@dimen/baseline_10dp"
+                                    app:drawableStartCompat="@drawable/group" />
+
+                            </androidx.cardview.widget.CardView>
+
+                            <androidx.cardview.widget.CardView
+                                android:id="@+id/cardSignOut"
+                                app:cardElevation="@dimen/baseline_50dp"
+                                android:layout_marginTop="@dimen/baseline_5dp"
+                                android:elevation="@dimen/baseline_5dp"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                >
+                                <TextView
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/sign_outs"
+                                    android:textAllCaps="true"
+                                    android:textStyle="bold"
+                                    android:textSize="16sp"
+                                    android:layout_gravity="center_vertical"
+                                    android:drawablePadding="@dimen/baseline_5dp"
+                                    android:padding="@dimen/baseline_10dp"
+                                    app:drawableStartCompat="@drawable/exit" />
+
+                            </androidx.cardview.widget.CardView>
+
+                            <androidx.cardview.widget.CardView
+
+                                android:id="@+id/cardLogoutOut"
+                                app:cardElevation="@dimen/baseline_50dp"
+                                android:layout_marginTop="@dimen/baseline_150dp"
+                                android:elevation="@dimen/baseline_5dp"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                >
+                                <TextView
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/logout"
+                                    android:textAllCaps="true"
+                                    android:textStyle="bold"
+                                    android:textSize="16sp"
+                                    android:layout_gravity="center_vertical"
+                                    android:drawablePadding="@dimen/baseline_5dp"
+                                    android:padding="@dimen/baseline_10dp"
+
+                                    app:drawableStartCompat="@drawable/logout" />
+
+                            </androidx.cardview.widget.CardView>
+                        </LinearLayout>
 
                         <androidx.constraintlayout.widget.ConstraintLayout
                             android:id="@+id/constLogout"
