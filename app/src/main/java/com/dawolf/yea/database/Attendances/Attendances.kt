@@ -3,10 +3,10 @@ package com.dawolf.yea.database.Attendances
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "attendances")
+@Entity(tableName = "attendances", primaryKeys = ["id", "userId"])
 data class Attendances(
-    @PrimaryKey
     val id: String,
+    val userId: String,
     val rfid_id: String,
     val region_name: String,
     val region_id: String,
@@ -19,5 +19,4 @@ data class Attendances(
     val signout_date: String,
     val signout_by: String,
     val created_at: String,
-
 )

@@ -7,11 +7,13 @@
     tools:context=".Startpage">
 
     <androidx.appcompat.widget.Toolbar
+        android:background="@color/white"
         android:id="@+id/toolbar"
         app:layout_constraintTop_toTopOf="parent"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
         <TextView
+            android:textAllCaps="true"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAlignment="center"
@@ -22,6 +24,7 @@
     </androidx.appcompat.widget.Toolbar>
 
     <LinearLayout
+        android:visibility="gone"
         android:id="@+id/linPlace"
         android:orientation="vertical"
         android:layout_margin="@dimen/baseline_5dp"

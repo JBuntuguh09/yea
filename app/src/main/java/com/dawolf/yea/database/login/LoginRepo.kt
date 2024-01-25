@@ -27,4 +27,8 @@ class LoginRepo(private val loginDao: LoginDao) {
     fun deleteUsers(){
         loginDao.deleteUsers()
     }
+
+    fun updateConfirm(pword: String, regionId: String, districtId:String, passChanged: String, userId: String){
+        loginDao.updateConfirm(pword, regionId, districtId, passChanged, userId)
+    }
 }

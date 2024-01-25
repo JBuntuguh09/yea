@@ -5,6 +5,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.dawolf.yea.MainBase
 import com.dawolf.yea.R
 import com.dawolf.yea.adapters.StaffPageAdapter
 import com.dawolf.yea.databinding.FragmentStaffBaseBinding
@@ -58,8 +59,13 @@ class StaffBase : Fragment() {
 
         }.attach()
 
-        storage.currPage = "Staff"
+        storage.currPage = "Registration"
         return view
+    }
+
+    override fun onResume() {
+        super.onResume()
+        (activity as MainBase).binding.txtTopic.text = "Registration"
     }
 
     companion object {

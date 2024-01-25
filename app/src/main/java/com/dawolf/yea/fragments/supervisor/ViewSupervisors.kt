@@ -3,20 +3,19 @@ package com.dawolf.yea.fragments.supervisor
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.dawolf.yea.MainActivity
 import com.dawolf.yea.MainBase
 import com.dawolf.yea.R
 import com.dawolf.yea.adapters.RecyclerViewAgents
 import com.dawolf.yea.adapters.RecyclerViewSupervisors
 import com.dawolf.yea.database.supervisor.Supervisor
 import com.dawolf.yea.database.supervisor.SupervisorViewModel
-import com.dawolf.yea.databinding.FragmentViewAgentsBinding
 import com.dawolf.yea.databinding.FragmentViewSupervisorsBinding
 import com.dawolf.yea.resources.Constant
 import com.dawolf.yea.resources.ShortCut_To
@@ -75,9 +74,11 @@ class ViewSupervisors : Fragment() {
     }
 
     private fun getOffline() {
-        supervisorViewModel.liveData.observe(requireActivity()){data->
+        supervisorViewModel.getSuper(storage.uSERID!!).observe(requireActivity()){data->
             try {
                 if(data.isNotEmpty()){
+                    arrayList.clear()
+
                     for (a in data.indices){
                         val hash = HashMap<String, String>()
                         val jObject = data[a]
@@ -101,21 +102,56 @@ class ViewSupervisors : Fragment() {
                     }
 
                 }
+                ShortCut_To.sortData(arrayList, "name")
                 val recyclerViewSupervisors = RecyclerViewSupervisors(requireContext(), arrayList)
                 val linearLayoutManager = LinearLayoutManager(requireContext())
                 binding.recycler.layoutManager = linearLayoutManager
                 binding.recycler.itemAnimator = DefaultItemAnimator()
                 binding.recycler.adapter = recyclerViewSupervisors
-            }catch (e:Exception){
+            }catch (_:Exception){
 
             }
         }
+    }
+
+    private fun searchData() {
+        val searchArray = ArrayList<HashMap<String, String>>()
+        for (a in arrayList.indices){
+            val hash = arrayList[a]
+            if(hash["name"]!!.lowercase().contains(binding.edtSearch.text.toString().lowercase())
+                || hash["status"]!!.lowercase().contains(binding.edtSearch.text.toString().lowercase())){
+                searchArray.add(hash)
+            }
+        }
+
+        //ShortCut_To.sortData(arrayList, "name")
+        val recyclerViewSupervisors = RecyclerViewSupervisors(requireContext(), searchArray)
+        val linearLayoutManager = LinearLayoutManager(requireContext())
+        binding.recycler.layoutManager = linearLayoutManager
+        binding.recycler.itemAnimator = DefaultItemAnimator()
+        binding.recycler.adapter = recyclerViewSupervisors
+
     }
 
     private fun getButtons() {
         binding.floatAdd.setOnClickListener {
             (activity as MainBase).navTo(RegisterSupervisor(), "New Supervisor", "Staff", 1)
         }
+
+        binding.edtSearch.setOnTouchListener(View.OnTouchListener { v, event ->
+            val DRAWABLE_LEFT = 0
+            val DRAWABLE_TOP = 1
+            val DRAWABLE_RIGHT = 2
+            val DRAWABLE_BOTTOM = 3
+            if (event.action == MotionEvent.ACTION_UP) {
+                if (event.rawX >= binding.edtSearch.right - binding.edtSearch.compoundDrawables[DRAWABLE_RIGHT].bounds.width()) {
+                    // your action here
+                    searchData()
+                    return@OnTouchListener true
+                }
+            }
+            false
+        })
 
     }
 
@@ -126,7 +162,7 @@ class ViewSupervisors : Fragment() {
         val api = API()
         GlobalScope.launch {
             try {
-                val res = api.getAPI(Constant.URL+"api/supervisors",  requireActivity())
+                val res = api.getAPI(Constant.URL+"api/supervisor/user/${storage.uSERID!!}",  requireActivity())
                 withContext(Dispatchers.Main){
 
                     setSuperInfo(res)
@@ -147,6 +183,7 @@ class ViewSupervisors : Fragment() {
             binding.progressBar.visibility = View.GONE
             val jsonObject = JSONObject(res)
             val data = jsonObject.getJSONArray("data")
+            supervisorViewModel.deleteSuper(storage.uSERID!!)
             for(a in 0 until data.length()){
                 val jObject = data.getJSONObject(a)
                 val hash = HashMap<String, String>()
@@ -166,7 +203,7 @@ class ViewSupervisors : Fragment() {
                 hash["date"] = ShortCut_To.convertDateFormat(jObject.optString("created_at"))
 
                // arrayList.add(hash)
-                val supervisor = Supervisor(jObject.getString("supervisor_id"), jObject.getString("id"), jObject.getString("name"),
+                val supervisor = Supervisor(jObject.getString("supervisor_id"), storage.uSERID!!, jObject.getString("id"), jObject.getString("name"),
                     jObject.getString("phone"), jObject.getString("status"),
                     jObject.getJSONObject("region").getString("name"), jObject.getString("region_id")
                     , jObject.getJSONObject("district").getString("name"), jObject.getString("district_id"), jObject.getString("created_at"))

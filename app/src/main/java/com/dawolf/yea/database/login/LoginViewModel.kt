@@ -38,4 +38,8 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
             repo.deleteUser(id)
         }
     }
+
+    fun updateConfirm(pword: String, regionId: String, districtId:String, passChanged: String, userId: String){
+        repo.updateConfirm(pword, regionId, districtId, passChanged, userId)
+    }
 }

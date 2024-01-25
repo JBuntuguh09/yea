@@ -34,6 +34,7 @@ class AgentScan : Fragment() {
     private lateinit var storage: Storage
     val arrayList = ArrayList<HashMap<String, String>>()
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {

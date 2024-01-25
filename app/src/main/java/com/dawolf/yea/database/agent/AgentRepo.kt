@@ -10,15 +10,20 @@ class AgentRepo(private val agentDao: AgentDao) {
         agentDao.insert(agent)
     }
 
-    fun getAgent(rfid: String): LiveData<List<Agent>>{
-        return agentDao.getAgent(rfid)
+    fun getAgent(id: String): LiveData<List<Agent>>{
+        return agentDao.getAgent(id)
     }
 
-    fun deleteAgent(rfid: String){
-        agentDao.deleteAgent(rfid)
+    fun deleteAgent(id: String){
+        agentDao.deleteAgent(id)
     }
 
     fun deleteAll(){
         agentDao.deleteAll()
+    }
+
+    fun updateAgent(vName:String, vPhone : String, vDob: String, vGender:String, vAddress:String, vDistrictName: String, vDistrict: String, vRegionName: String, vRegion: String,
+                    vLat: String, vLong: String, agentId:String){
+        agentDao.updateAgent(vName, vPhone , vDob, vGender, vAddress, vDistrictName,vDistrict, vRegionName,vRegion, vLat, vLong, agentId)
     }
 }

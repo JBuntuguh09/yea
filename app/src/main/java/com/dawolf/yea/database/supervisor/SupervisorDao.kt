@@ -15,10 +15,14 @@ interface SupervisorDao {
     @Query("Select * from supervisor order by created_at desc")
     fun getAll(): LiveData<List<Supervisor>>
 
-    @Query("Select * from supervisor where supervisor_id =:id")
+    @Query("Select * from supervisor where userId =:id")
     fun getSuper(id: String): LiveData<List<Supervisor>>
 
-    @Query("Delete from supervisor where supervisor_id =:id")
+    @Query("Delete from supervisor where userId =:id")
     fun deleteSuper(id: String)
+
+    @Query("update supervisor set name = :vName, phone=:vPhone, district_id=:vDistrict, district_name = :vDistrictName, region_id = :vRegion, " +
+            "region_name=:vRegionName where supervisor_id=:superId")
+    fun updateSupervisor(vName: String, vPhone: String, vRegionName:String, vRegion: String, vDistrictName:String, vDistrict: String,  superId: String)
 
 }

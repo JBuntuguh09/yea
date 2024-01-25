@@ -17,4 +17,8 @@ class SupervisorRepo(private val supervisorDao: SupervisorDao) {
     fun deleteSuper(id: String){
         supervisorDao.deleteSuper(id)
     }
+
+    fun updateSupervisor(vName: String, vPhone: String, vRegionName:String, vRegion: String, vDistrictName:String, vDistrict: String,  superId: String){
+        supervisorDao.updateSupervisor(vName, vPhone, vRegionName, vRegion, vDistrictName, vDistrict, superId)
+    }
 }

@@ -3,6 +3,7 @@ package com.dawolf.yea.fragments.attendance
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProvider
@@ -59,6 +60,21 @@ class AttendancePeriod : Fragment() {
     }
 
     private fun getAttendance() {
+        binding.edtSearch.setOnTouchListener(View.OnTouchListener { v, event ->
+            val DRAWABLE_LEFT = 0
+            val DRAWABLE_TOP = 1
+            val DRAWABLE_RIGHT = 2
+            val DRAWABLE_BOTTOM = 3
+            if (event.action == MotionEvent.ACTION_UP) {
+                if (event.rawX >= binding.edtSearch.right - binding.edtSearch.compoundDrawables[DRAWABLE_RIGHT].bounds.width()) {
+                    // your action here
+                    searchData()
+                    return@OnTouchListener true
+                }
+            }
+            false
+        })
+
         attendancesViewModel.liveData.observe(requireActivity()){data->
             try {
                 if(data.isNotEmpty()){
@@ -75,6 +91,7 @@ class AttendancePeriod : Fragment() {
                             hash["district_id"] = jObject.district_id
                             hash["supervisor_id"] = jObject.supervisor_id
                             hash["date"] = ShortCut_To.convertDateFormat(jObject.created_at)
+                            hash["sort"] = ShortCut_To.convertForSort(jObject.created_at)
 
                             hash["region_name"] = jObject.region_name
 
@@ -86,10 +103,6 @@ class AttendancePeriod : Fragment() {
                             //hash["aName"] = jObject.getJSONObject("agent").optString("name")
                             hash["agent_id"] = jObject.agent_id
 
-                            println( ShortCut_To.currentDates +"// mmmmmmmmmmm /////////////"+ ShortCut_To.convertDateFormat3(jObject.created_at)+"//"+
-                                    ShortCut_To.isSameWeek(ShortCut_To.currentDates, ShortCut_To.convertDateFormat3(jObject.created_at))+
-                                    "//>>"+ShortCut_To.isSameMonth(ShortCut_To.currentDates, ShortCut_To.convertDateFormat3(jObject.created_at))+
-                                    "//"+jObject.created_at)
 
                             if (storage.period == "day" && ShortCut_To.currentDates == ShortCut_To.convertDateFormat3(jObject.created_at)){
                                 arrayList.add(hash)
@@ -102,7 +115,7 @@ class AttendancePeriod : Fragment() {
 
                         }
 
-
+                        ShortCut_To.sortDataInvert(arrayList, "sort")
                         val recyclerViewAttendance = RecyclerViewAttendance(requireContext(), arrayList)
                         val linearLayoutManager = LinearLayoutManager(requireContext())
                         binding.recycler.layoutManager = linearLayoutManager
@@ -117,6 +130,25 @@ class AttendancePeriod : Fragment() {
 
             }
         }
+    }
+
+    private fun searchData() {
+        val searchArray = ArrayList<HashMap<String, String>>()
+        for (a in arrayList.indices){
+            val hash = arrayList[a]
+            if(hash["name"]!!.lowercase().contains(binding.edtSearch.text.toString().lowercase())
+                || hash["sName"]!!.lowercase().contains(binding.edtSearch.text.toString().lowercase())){
+                searchArray.add(hash)
+            }
+        }
+
+
+        val recyclerViewAttendance = RecyclerViewAttendance(requireContext(), searchArray)
+        val linearLayoutManager = LinearLayoutManager(requireContext())
+        binding.recycler.layoutManager = linearLayoutManager
+        binding.recycler.itemAnimator = DefaultItemAnimator()
+        binding.recycler.adapter = recyclerViewAttendance
+
     }
 
     companion object {

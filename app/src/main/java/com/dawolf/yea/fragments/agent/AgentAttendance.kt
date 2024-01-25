@@ -71,7 +71,7 @@ class AgentAttendance : Fragment() {
         GlobalScope.launch {
             try {
 
-                val res = api.getAPI(Constant.URL+"api/attendances",  requireActivity())
+                val res = api.getAPI(Constant.URL+"api/attendance/user/${storage.uSERID!!}",  requireActivity())
                 withContext(Dispatchers.Main){
                     println(res)
                     setAgentInfo(res)

@@ -19,4 +19,12 @@ class AttendanceRepo(private val attendanceDao: AttendanceDao) {
     fun deleteAll(){
         attendanceDao.deleteAll()
     }
+
+    fun getAllById(id:String) : LiveData<List<Attendance>>{
+       return attendanceDao.getAllById(id)
+    }
+
+    fun deleteAllById(rfid: String, id: String){
+        attendanceDao.deleteAttendanceByRfidId(rfid, id)
+    }
 }

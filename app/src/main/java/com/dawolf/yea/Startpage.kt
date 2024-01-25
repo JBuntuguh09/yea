@@ -1,7 +1,13 @@
 package com.dawolf.yea
 
+import android.Manifest
 import android.app.PendingIntent
+import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.location.Location
+import android.location.LocationListener
+import android.location.LocationManager
 import android.nfc.NdefMessage
 import android.nfc.NfcAdapter
 import android.nfc.Tag
@@ -10,10 +16,12 @@ import android.nfc.tech.MifareClassic
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Parcelable
+import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.ProgressBar
 import android.widget.Toast
+import androidx.core.app.ActivityCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -24,6 +32,7 @@ import com.dawolf.yea.database.send.Send
 import com.dawolf.yea.database.send.SendViewModel
 import com.dawolf.yea.databinding.ActivityStartpageBinding
 import com.dawolf.yea.resources.Constant
+import com.dawolf.yea.resources.MyLocationListener
 import com.dawolf.yea.resources.ShortCut_To
 import com.dawolf.yea.resources.Storage
 import com.dawolf.yea.utils.API
@@ -35,7 +44,8 @@ import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import java.io.IOException
 
-class Startpage : AppCompatActivity() {
+
+class Startpage : AppCompatActivity(), LocationListener {
 
     private var nfcAdapter: NfcAdapter? = null
     private var pendingIntent: PendingIntent? = null
@@ -44,6 +54,12 @@ class Startpage : AppCompatActivity() {
     private lateinit var binding: ActivityStartpageBinding
     private lateinit var storage: Storage
     val arrayList = ArrayList<HashMap<String, String>>()
+    private lateinit var locationManager: LocationManager
+    private val LOCATION_PERMISSION_REQUEST_CODE = 1
+    var lat = "0.00"
+    var long="0.00"
+
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,6 +69,8 @@ class Startpage : AppCompatActivity() {
         storage = Storage(this)
         attendanceViewModel = ViewModelProvider(this, defaultViewModelProviderFactory)[AttendanceViewModel::class.java]
         sendViewModel = ViewModelProvider(this, defaultViewModelProviderFactory)[SendViewModel::class.java]
+        locationManager = getSystemService(LOCATION_SERVICE) as LocationManager
+        checkLocationPermission()
         getCodes()
         nfcAdapter = NfcAdapter.getDefaultAdapter(this)
 
@@ -67,13 +85,15 @@ class Startpage : AppCompatActivity() {
 
     private fun getCodes() {
 
+
         binding.btnOnline.setOnClickListener {
             if (arrayList.size==0){
                 Toast.makeText(this, "Scan you card", Toast.LENGTH_SHORT).show()
             }else{
                 for (b in 0 until arrayList.size){
                     //sendData(arrayList[b]["rfid"]!!)
-                    val send = Send(0, arrayList[b]["rfid"]!!, "attendance", "",arrayList[b]["region_id"]!!, arrayList[b]["district_id"]!!)
+                    val send = Send(0, arrayList[b]["rfid"]!!, "attendance", "",arrayList[b]["region_id"]!!, arrayList[b]["district_id"]!!,
+                        arrayList[b]["lat"]!!, arrayList[b]["long"]!!)
                     sendViewModel.insert(send)
                 }
                 finish()
@@ -81,9 +101,9 @@ class Startpage : AppCompatActivity() {
         }
         binding.txtRegion.text=storage.region
         binding.txtDistrict.text = storage.district
-        attendanceViewModel.liveData.observe(this){data->
+        attendanceViewModel.getAllById(storage.uSERID!!).observe(this){data->
             if(data.isNotEmpty()){
-                println("dabbbbb ${data}")
+
                 arrayList.clear()
                 for(a in data.indices){
                     val hash = HashMap<String, String>()
@@ -93,6 +113,8 @@ class Startpage : AppCompatActivity() {
                     hash["district_id"] = data[a].district_id
                     hash["sent"] = data[a].sent.toString()
                     hash["datetime"] = data[a].datetime
+                    hash["lat"] = data[a].lat
+                    hash["long"] = data[a].longi
 
                     if (!data[a].sent) {
                         arrayList.add(hash)
@@ -170,7 +192,7 @@ class Startpage : AppCompatActivity() {
                         val hexString = blockData.joinToString("") { it.toUByte().toString(16).padStart(2, '0') }
 
                         println("Hexadecimal Data from Sector $sector, Block $blockNumber: $hexString")
-                        val attendance = Attendance( hexString, storage.regionId!!, storage.districtId!!,
+                        val attendance = Attendance( hexString, storage.uSERID!!, storage.regionId!!, storage.districtId!!, lat, long,
                             ShortCut_To.currentDatewithTime, false)
                         attendanceViewModel.insert(attendance)
                     } else {
@@ -243,67 +265,71 @@ class Startpage : AppCompatActivity() {
     }
 
 
-    private fun sendData(rfid: String, progress: ProgressBar=binding.progressBar, button: Button=binding.btnOnline) = runBlocking {
 
-        val api = API()
-        val body = mapOf(
-            "rfid_no" to rfid,
-            "region_id" to storage.regionId!!,
-            "district_id" to storage.districtId!!
-        )
-        println("bbbbb ${body}")
+    private fun checkLocationPermission() {
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                LOCATION_PERMISSION_REQUEST_CODE
+            )
+        } else {
+            requestLocationUpdates()
+        }
+    }
+
+    private fun requestLocationUpdates() {
         try {
-            GlobalScope.launch {
-                val res:String = api.postAPIWithHeader(
-                    Constant.URL + "api/attendance",
-                    body,
-                    this@Startpage
-                )
+            locationManager.requestLocationUpdates(
+                LocationManager.GPS_PROVIDER,
+                0L, 0f, this
+            )
+        } catch (ex: SecurityException) {
+            Log.e("Location", "Permission not granted", ex)
+        }
+    }
 
-                withContext(Dispatchers.Main){
-                    if(res == "[]"){
-                        Toast.makeText(this@Startpage, "Error: Failed to create attendance", Toast.LENGTH_SHORT).show()
-                        progress.visibility = View.GONE
-                        button.isEnabled = true
+    override fun onLocationChanged(location: Location) {
+        val latitude = location.latitude
+        val longitude = location.longitude
+         lat = location.latitude.toString()
+         long = location.longitude.toString()
 
+    }
 
-                    }else {
-                        setInfo(res, rfid,progress, button)
-                    }
+    override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {
+        // Handle status changes if needed
+    }
+
+    override fun onProviderEnabled(provider: String) {
+        // Handle provider enabled if needed
+    }
+
+    override fun onProviderDisabled(provider: String) {
+        // Handle provider disabled if needed
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        when (requestCode) {
+            LOCATION_PERMISSION_REQUEST_CODE -> {
+                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    requestLocationUpdates()
+                } else {
+                    // Handle permission denied
                 }
             }
-        }catch (e: Exception){
-            e.printStackTrace()
-            Toast.makeText(this@Startpage, "Error: Failed to create supervisor", Toast.LENGTH_SHORT).show()
-            progress.visibility = View.GONE
-            button.isEnabled = true
-
-
-        }
-
-    }
-
-    private fun setInfo(res: String, rfid: String, progress: ProgressBar=binding.progressBar, button: Button=binding.btnOnline) {
-        try {
-            val jsonObject = JSONObject(res)
-            val mess = jsonObject.optString("message")
-
-            Toast.makeText(this@Startpage, mess, Toast.LENGTH_SHORT).show()
-            attendanceViewModel.deleteByRfid(rfid)
-            if(mess == "Attendance created successfully"){
-
-            }
-            progress.visibility = View.GONE
-            button.isEnabled = true
-        }catch (e: Exception){
-            e.printStackTrace()
-            progress.visibility = View.GONE
-            button.isEnabled = true
         }
     }
 
-
-    //
 
 
 }

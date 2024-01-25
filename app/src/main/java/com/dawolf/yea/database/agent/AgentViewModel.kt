@@ -45,4 +45,11 @@ class AgentViewModel(application: Application) : AndroidViewModel(application) {
             repo.deleteAgent(rfid)
         }
     }
+
+    fun updateAgent(vName:String, vPhone : String, vDob: String, vGender:String, vAddress:String,vDistrictName: String, vDistrict: String, vRegionName: String, vRegion: String,
+                    vLat: String, vLong: String, agentId:String){
+        viewModelScope.launch(Dispatchers.IO) {
+            repo.updateAgent(vName, vPhone , vDob, vGender, vAddress, vDistrictName, vDistrict, vRegionName, vRegion, vLat, vLong, agentId)
+        }
+    }
 }

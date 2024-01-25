@@ -15,9 +15,9 @@ import com.dawolf.yea.R
 import com.dawolf.yea.Startpage
 import com.dawolf.yea.databinding.FragmentNewAttendanceBinding
 import com.dawolf.yea.resources.Storage
-import com.rscja.deviceapi.RFIDWithUHFA4NetWork
+
 import org.json.JSONArray
-import org.json.JSONObject
+
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -152,6 +152,7 @@ class NewAttendance : Fragment() {
         try {
             val jsonArray =JSONArray(districts)
             val list = ArrayList<String>()
+            arrayListDistrict.clear()
             list.add("Select district")
             for (a in 0 until jsonArray.length()){
                 val jsonObject = jsonArray.getJSONObject(a)

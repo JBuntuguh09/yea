@@ -1,8 +1,10 @@
 package com.dawolf.yea.fragments.attendance
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
@@ -11,8 +13,11 @@ import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.dawolf.yea.MainBase
 import com.dawolf.yea.R
+import com.dawolf.yea.RFIDActivity2
+import com.dawolf.yea.Startpage
 import com.dawolf.yea.adapters.RecyclerViewAgents
 import com.dawolf.yea.adapters.RecyclerViewAttendance
+import com.dawolf.yea.adapters.RecyclerViewSupervisors
 import com.dawolf.yea.database.Attendances.Attendances
 import com.dawolf.yea.database.Attendances.AttendancesViewModel
 import com.dawolf.yea.databinding.FragmentViewAttendanceBinding
@@ -74,6 +79,7 @@ class ViewAttendance : Fragment() {
         attendancesViewModel.liveData.observe(requireActivity()){data->
             if(data.isNotEmpty()){
                 try {
+                    arrayList.clear()
                     for(a in data.indices){
                         val hash = HashMap<String, String>()
                         val jObject = data[a]
@@ -86,6 +92,7 @@ class ViewAttendance : Fragment() {
                         hash["district_id"] = jObject.district_id
                         hash["supervisor_id"] = jObject.supervisor_id
                         hash["date"] = ShortCut_To.convertDateFormat(jObject.created_at)
+                        hash["sort"] = ShortCut_To.convertForSort(jObject.created_at)
 
                         hash["region_name"] = jObject.region_name
 
@@ -95,13 +102,15 @@ class ViewAttendance : Fragment() {
 
                         hash["agent_id"] = jObject.agent_id
 
+                        hash["sDate"] =  hash["date"]!!.split(" at ")[0]
+
 
 
                         arrayList.add(hash)
 
 
                     }
-
+                    ShortCut_To.sortDataInvert(arrayList, "sort")
 
                     val recyclerViewAttendance = RecyclerViewAttendance(requireContext(), arrayList)
                     val linearLayoutManager = LinearLayoutManager(requireContext())
@@ -118,8 +127,45 @@ class ViewAttendance : Fragment() {
 
     private fun getButtons() {
         binding.floatAdd.setOnClickListener {
-            (activity as MainBase).navTo(NewAttendance(), "New Attendance", "View Attendance", 1)
+            //(activity as MainBase).navTo(NewAttendance(), "New Attendance", "View Attendance", 1)
+            storage.project = "Attendance"
+            val intent = Intent(requireContext(), RFIDActivity2::class.java)
+            startActivity(intent)
         }
+
+        binding.edtSearch.setOnTouchListener(View.OnTouchListener { v, event ->
+            val DRAWABLE_LEFT = 0
+            val DRAWABLE_TOP = 1
+            val DRAWABLE_RIGHT = 2
+            val DRAWABLE_BOTTOM = 3
+            if (event.action == MotionEvent.ACTION_UP) {
+                if (event.rawX >= binding.edtSearch.right - binding.edtSearch.compoundDrawables[DRAWABLE_RIGHT].bounds.width()) {
+                    // your action here
+                    searchData()
+                    return@OnTouchListener true
+                }
+            }
+            false
+        })
+    }
+
+    private fun searchData() {
+        val searchArray = ArrayList<HashMap<String, String>>()
+        for (a in arrayList.indices){
+            val hash = arrayList[a]
+            if(hash["name"]!!.lowercase().contains(binding.edtSearch.text.toString().lowercase())
+                || hash["sName"]!!.lowercase().contains(binding.edtSearch.text.toString().lowercase())){
+                searchArray.add(hash)
+            }
+        }
+
+
+        val recyclerViewAttendance = RecyclerViewAttendance(requireContext(), searchArray)
+        val linearLayoutManager = LinearLayoutManager(requireContext())
+        binding.recycler.layoutManager = linearLayoutManager
+        binding.recycler.itemAnimator = DefaultItemAnimator()
+        binding.recycler.adapter = recyclerViewAttendance
+
     }
 
     @OptIn(DelicateCoroutinesApi::class)
@@ -130,7 +176,7 @@ class ViewAttendance : Fragment() {
         GlobalScope.launch {
             try {
 
-                val res = api.getAPI(Constant.URL+"api/attendances",  requireActivity())
+                val res = api.getAPI(Constant.URL+"api/attendance/user/${storage.uSERID!!}",  requireActivity())
                 withContext(Dispatchers.Main){
                     println(res)
                     setAgentInfo(res)
@@ -151,6 +197,7 @@ class ViewAttendance : Fragment() {
             var num = 0
             val jsonObject = JSONObject(res)
             val data = jsonObject.getJSONArray("data")
+            attendancesViewModel.deleteBid(storage.uSERID!!)
             for(a in 0 until data.length()){
                 val jObject = data.getJSONObject(a)
                 val hash = HashMap<String, String>()
@@ -176,7 +223,7 @@ class ViewAttendance : Fragment() {
                 hash["agent_id"] = jObject.getJSONObject("agent").optString("id")
 
                // arrayList.add(hash)
-                val attendances = Attendances(jObject.getString("id"), jObject.getString("rfid_no"),
+                val attendances = Attendances(jObject.getString("id"), storage.uSERID!!,jObject.getString("rfid_no"),
                     jObject.getJSONObject("region").getString("name"), jObject.getString("region_id"),
                     jObject.getJSONObject("district").getString("name"), jObject.getString("district_id"),
                     jObject.getJSONObject("supervisor").getString("name"), jObject.getJSONObject("supervisor").getString("id"),

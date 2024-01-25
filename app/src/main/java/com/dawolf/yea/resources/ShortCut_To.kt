@@ -1394,4 +1394,32 @@ object ShortCut_To {
         return sortedByDate
     }
 
+    fun convertForSort(dateString: String):String{
+
+
+        // Define the date pattern
+        val pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSSSS'Z'"
+
+        // Create a SimpleDateFormat with the defined pattern
+        val sdf = SimpleDateFormat(pattern)
+
+        // Set the time zone to UTC
+        sdf.timeZone = TimeZone.getTimeZone("UTC")
+
+        return try {
+            // Parse the date string
+            val date = sdf.parse(dateString)
+
+            // Convert Date to timestamp (milliseconds since epoch)
+            val timestamp = date?.time
+
+            timestamp?.toString() ?: ""
+        } catch (e: Exception) {
+            ""
+        }
+
+    }
+
+
+
 }

@@ -5,11 +5,17 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Toast
+import androidx.lifecycle.ViewModelProvider
+import com.dawolf.yea.MainBase
 import com.dawolf.yea.R
+import com.dawolf.yea.database.supervisor.Supervisor
+import com.dawolf.yea.database.supervisor.SupervisorViewModel
 import com.dawolf.yea.databinding.FragmentRegisterSupervisorBinding
 import com.dawolf.yea.resources.Constant
+import com.dawolf.yea.resources.ShortCut_To
 import com.dawolf.yea.resources.Storage
 import com.dawolf.yea.utils.API
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -18,6 +24,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
+import org.json.JSONArray
 import org.json.JSONObject
 
 // TODO: Rename parameter arguments, choose names that match
@@ -38,6 +45,7 @@ class RegisterSupervisor : Fragment() {
     private lateinit var storage: Storage
     private var arrayListRegion = ArrayList<HashMap<String, String>>()
     private var arrayListDistrict = ArrayList<HashMap<String, String>>()
+    private lateinit var supervisorViewModel: SupervisorViewModel
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -56,16 +64,16 @@ class RegisterSupervisor : Fragment() {
         val view = inflater.inflate(R.layout.fragment_register_supervisor, container, false)
         binding = FragmentRegisterSupervisorBinding.bind(view)
         storage = Storage(requireContext())
+        supervisorViewModel = ViewModelProvider(requireActivity(), defaultViewModelProviderFactory)[SupervisorViewModel::class.java]
 
 
-        getRegion()
-        getDistrict()
         getButtons()
         return view
     }
 
     private fun getButtons() {
         binding.btnSubmit.setOnClickListener {
+            ShortCut_To.hideKeyboard(requireActivity())
             if(binding.edtName.text.toString().isEmpty()){
                 Toast.makeText(requireContext(), "Enter supervisor name", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
@@ -91,8 +99,79 @@ class RegisterSupervisor : Fragment() {
                 binding.btnSubmit.isEnabled = false
             }
             sendData()
+        }
 
 
+        (activity as MainBase).regionViewModel.liveData.observe(requireActivity()){ data->
+            if(data.isNotEmpty()){
+
+                val list = ArrayList<String>()
+                list.add("Select region")
+                for(a in data.indices){
+                    val jObject = data[a]
+                    val hash = HashMap<String, String>()
+                    hash["id"] = jObject.id
+                    hash["name"] = jObject.name
+                    hash["districts"] =jObject.districts
+
+                    arrayListRegion.add(hash)
+                    list.add(jObject.name)
+
+                }
+
+                if(arrayListRegion.size>0){
+                    val adapter = ArrayAdapter(requireContext(), R.layout.layout_spinner_list, list)
+                    adapter.setDropDownViewResource(R.layout.layout_dropdown)
+                    binding.spinRegion.adapter = adapter
+
+                    binding.spinRegion.onItemSelectedListener = object :
+                        AdapterView.OnItemSelectedListener {
+                        override fun onItemSelected(parentView: AdapterView<*>?, selectedItemView: View?, position: Int, id: Long) {
+                            if(position == 0){
+                                binding.spinDistrict.setSelection(0)
+                                binding.spinDistrict.visibility = View.GONE
+                            }else{
+                                binding.spinDistrict.visibility = View.VISIBLE
+                                getDistrctFromRegion(data[position-1].districts)
+
+                            }
+                        }
+
+                        override fun onNothingSelected(parentView: AdapterView<*>?) {
+                            // Handle case where nothing is selected (optional)
+                        }
+                    }
+                }
+            }else{
+                getRegion()
+                getDistrict()
+            }
+        }
+
+    }
+    fun getDistrctFromRegion(districts: String){
+        try {
+            val jsonArray = JSONArray(districts)
+            val list = ArrayList<String>()
+            list.add("Select district")
+            for (a in 0 until jsonArray.length()){
+                val jsonObject = jsonArray.getJSONObject(a)
+                val hash = HashMap<String, String>()
+                hash["id"] = jsonObject.optString("id")
+                hash["name"] = jsonObject.optString("name")
+
+                arrayListDistrict.add(hash)
+                list.add(jsonObject.optString("name"))
+
+            }
+
+            if(arrayListDistrict.size>0){
+                val adapter = ArrayAdapter(requireContext(), R.layout.layout_spinner_list, list)
+                adapter.setDropDownViewResource(R.layout.layout_dropdown)
+                binding.spinDistrict.adapter = adapter
+            }
+        }catch (e: Exception){
+            e.printStackTrace()
         }
     }
 
@@ -141,9 +220,20 @@ class RegisterSupervisor : Fragment() {
 
             val jsonObject = JSONObject(res)
             val mess = jsonObject.optString("message")
+            try {
+                val data = jsonObject.getJSONObject("data")
+                val  supervisor = Supervisor(data.optString("supervisor_id"), storage.uSERID!!,data.optString("id"), data.optString("name"),
+                    data.optString("phone"), "Active", binding.spinRegion.selectedItem.toString(), data.optString("region_id"),
+                    binding.spinDistrict.selectedItem.toString(), data.optString("district_id"), data.optString("created_at"))
+
+                supervisorViewModel.insert(supervisor)
+            }catch (e: Exception){
+
+            }
 
             Toast.makeText(requireContext(), mess, Toast.LENGTH_SHORT).show()
             if(mess == "Supervisor created successfully"){
+
                 requireActivity().onBackPressed()
             }
             binding.progressBar.visibility = View.GONE

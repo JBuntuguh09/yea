@@ -364,6 +364,14 @@ class Storage(context: Context) {
             editor.commit()
         }
 
+    var phone : String?
+        get() = pref.getString(PHONE, "")
+        set(value) {
+            val editor = editor
+            editor.putString(PHONE, value)
+            editor.commit()
+        }
+
     var projPrice : String?
         get() = pref.getString(PROJECTPRICE, "")
         set(value) {
@@ -643,6 +651,7 @@ class Storage(context: Context) {
         private const val JUSTLOGGEDIN = "Just logged into app"
         private const val RFID = "user refid tag"
         private const val PERIOD = "selecrted period"
+        private const val PHONE = "phone number user"
 
 
 

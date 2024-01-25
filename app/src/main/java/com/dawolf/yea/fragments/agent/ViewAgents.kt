@@ -3,6 +3,7 @@ package com.dawolf.yea.fragments.agent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
@@ -15,7 +16,6 @@ import com.dawolf.yea.adapters.RecyclerViewAgents
 import com.dawolf.yea.database.agent.Agent
 import com.dawolf.yea.database.agent.AgentViewModel
 import com.dawolf.yea.databinding.FragmentViewAgentsBinding
-import com.dawolf.yea.fragments.supervisor.RegisterSupervisor
 import com.dawolf.yea.resources.Constant
 import com.dawolf.yea.resources.ShortCut_To
 import com.dawolf.yea.resources.Storage
@@ -70,11 +70,27 @@ class ViewAgents : Fragment() {
         return view
     }
     private fun getButtons() {
+        binding.edtSearch.setOnTouchListener(View.OnTouchListener { v, event ->
+            val DRAWABLE_LEFT = 0
+            val DRAWABLE_TOP = 1
+            val DRAWABLE_RIGHT = 2
+            val DRAWABLE_BOTTOM = 3
+            if (event.action == MotionEvent.ACTION_UP) {
+                if (event.rawX >= binding.edtSearch.right - binding.edtSearch.compoundDrawables[DRAWABLE_RIGHT].bounds.width()) {
+                    // your action here
+                    searchData()
+                    return@OnTouchListener true
+                }
+            }
+            false
+        })
+
         binding.floatAdd.setOnClickListener {
+            storage.randVal = ""
             (activity as MainBase).navTo(RegisterAgent(), "New Agent", "Staff", 1)
         }
 
-        agentViewModel.liveData.observe(requireActivity()){data->
+        agentViewModel.getAgent(storage.uSERID!!).observe(requireActivity()){data->
             try {
                 if(data.isNotEmpty()){
                     arrayList.clear()
@@ -98,9 +114,10 @@ class ViewAgents : Fragment() {
                         hash["longitude"] = jObject.longitude
                         hash["supervisor_id"] = jObject.supervisor_id
                         hash["date"] = ShortCut_To.convertDateFormat(jObject.created_at)
+                        hash["sort"] = ShortCut_To.convertForSort(jObject.created_at)
 
                         hash["region_name"] = jObject.region_name
-                        hash["district_name"] = jObject.district_id
+                        hash["district_name"] = jObject.district_name
                         hash["sName"] = jObject.supervisor_name
                         hash["sEmail"] = jObject.supervisor_email
                         hash["sNumber"] = jObject.supervisor_phone
@@ -109,6 +126,7 @@ class ViewAgents : Fragment() {
 
                     }
 
+                    ShortCut_To.sortDataInvert(arrayList, "sort")
                     val recyclerViewAgents = RecyclerViewAgents(requireContext(), arrayList)
                     val linearLayoutManager = LinearLayoutManager(requireContext())
                     binding.recycler.layoutManager = linearLayoutManager
@@ -122,6 +140,25 @@ class ViewAgents : Fragment() {
         }
     }
 
+    private fun searchData() {
+        val searchArray = ArrayList<HashMap<String, String>>()
+        for (a in arrayList.indices){
+            val hash = arrayList[a]
+            if(hash["name"]!!.lowercase().contains(binding.edtSearch.text.toString().lowercase())
+                || hash["status"]!!.lowercase().contains(binding.edtSearch.text.toString().lowercase())){
+                    searchArray.add(hash)
+                }
+        }
+
+        //ShortCut_To.sortData(arrayList, "name")
+        val recyclerViewAgents = RecyclerViewAgents(requireContext(), searchArray)
+        val linearLayoutManager = LinearLayoutManager(requireContext())
+        binding.recycler.layoutManager = linearLayoutManager
+        binding.recycler.itemAnimator = DefaultItemAnimator()
+        binding.recycler.adapter = recyclerViewAgents
+
+    }
+
     @OptIn(DelicateCoroutinesApi::class)
     private fun getAgents(){
         arrayList.clear()
@@ -130,7 +167,7 @@ class ViewAgents : Fragment() {
         GlobalScope.launch {
             try {
 
-                val res = api.getAPI(Constant.URL+"api/agents",  requireActivity())
+                val res = api.getAPI(Constant.URL+"api/agent/user/${storage.uSERID!!}",  requireActivity())
                 withContext(Dispatchers.Main){
                     println(res)
                     setAgentInfo(res)
@@ -152,6 +189,7 @@ class ViewAgents : Fragment() {
             val jsonObject = JSONObject(res)
             val data = jsonObject.getJSONArray("data")
             arrayList.clear()
+            agentViewModel.deleteAgent(storage.uSERID!!)
             for(a in 0 until data.length()){
                 val jObject = data.getJSONObject(a)
                 val hash = HashMap<String, String>()
@@ -179,7 +217,7 @@ class ViewAgents : Fragment() {
                 hash["sNumber"] = jObject.getJSONObject("supervisor").optString("phone")
 
 
-                val agent = Agent(jObject.getString("rfid_no"), jObject.getString("id"), jObject.getString("agent_id"),
+                val agent = Agent(jObject.getString("rfid_no"), storage.uSERID!!, jObject.getString("id"), jObject.getString("agent_id"),
                     jObject.getString("name"), jObject.getString("dob"), jObject.getString("phone"), jObject.getString("address"),
                     jObject.getJSONObject("region").getString("name"), jObject.getString("region_id")
                     , jObject.getJSONObject("district").getString("name"), jObject.getString("district_id"),

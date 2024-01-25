@@ -14,10 +14,16 @@ import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
+import androidx.lifecycle.ViewModelProvider
+import com.dawolf.yea.MainBase
 import com.dawolf.yea.R
+import com.dawolf.yea.RFIDActivity2
+import com.dawolf.yea.database.agent.Agent
+import com.dawolf.yea.database.agent.AgentViewModel
 import com.dawolf.yea.databinding.FragmentRegisterAgentBinding
 import com.dawolf.yea.resources.Constant
 import com.dawolf.yea.resources.MyLocationListener
@@ -30,6 +36,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
+import org.json.JSONArray
 import org.json.JSONObject
 
 // TODO: Rename parameter arguments, choose names that match
@@ -55,6 +62,7 @@ class RegisterAgent : Fragment(), LocationListener {
     private val LOCATION_PERMISSION_REQUEST_CODE = 1
     var lat = "0.00"
     var long="0.00"
+    private lateinit var agentViewModel: AgentViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -73,17 +81,23 @@ class RegisterAgent : Fragment(), LocationListener {
         binding = FragmentRegisterAgentBinding.bind(view)
         storage = Storage(requireContext())
         locationManager = requireActivity().getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        agentViewModel = ViewModelProvider(requireActivity(), defaultViewModelProviderFactory)[AgentViewModel::class.java]
 
-        ShortCut_To.timeStamp()
-        getRegion()
-        getDistrict()
         getButtons()
         return view
     }
 
     private fun getButtons() {
+        (activity as MainBase).idCheck.observe(requireActivity()){data->
+
+            if (data!=null){
+                storage.randVal = data
+            }
+        }
+
         binding.btnScan.setOnClickListener {
-            val intent = Intent(requireContext(), ScanAgent::class.java)
+            storage.project = "Register"
+            val intent = Intent(requireContext(), RFIDActivity2::class.java)
             startActivity(intent)
         }
         val list = ArrayList<String>()
@@ -148,6 +162,78 @@ class RegisterAgent : Fragment(), LocationListener {
             }
             sendData()
         }
+        (activity as MainBase).regionViewModel.liveData.observe(requireActivity()){ data->
+            if(data.isNotEmpty()){
+
+                val lists = ArrayList<String>()
+                lists.add("Select region")
+                for(a in data.indices){
+                    val jObject = data[a]
+                    val hash = HashMap<String, String>()
+                    hash["id"] = jObject.id
+                    hash["name"] = jObject.name
+                    hash["districts"] =jObject.districts
+
+                    arrayListRegion.add(hash)
+                    lists.add(jObject.name)
+
+                }
+
+                if(arrayListRegion.size>0){
+                    val adapter = ArrayAdapter(requireContext(), R.layout.layout_spinner_list, lists)
+                    adapter.setDropDownViewResource(R.layout.layout_dropdown)
+                    binding.spinRegion.adapter = adapter
+
+                    binding.spinRegion.onItemSelectedListener = object :
+                        AdapterView.OnItemSelectedListener {
+                        override fun onItemSelected(parentView: AdapterView<*>?, selectedItemView: View?, position: Int, id: Long) {
+                            if(position == 0){
+                                binding.spinDistrict.setSelection(0)
+                                binding.spinDistrict.visibility = View.GONE
+                            }else{
+                                binding.spinDistrict.visibility = View.VISIBLE
+                                getDistrctFromRegion(data[position-1].districts)
+
+                            }
+                        }
+
+                        override fun onNothingSelected(parentView: AdapterView<*>?) {
+                            // Handle case where nothing is selected (optional)
+                        }
+                    }
+                }
+            }else{
+                getRegion()
+                getDistrict()
+            }
+        }
+
+    }
+    fun getDistrctFromRegion(districts: String){
+        try {
+            val jsonArray = JSONArray(districts)
+            val list = ArrayList<String>()
+            arrayListDistrict.clear()
+            list.add("Select district")
+            for (a in 0 until jsonArray.length()){
+                val jsonObject = jsonArray.getJSONObject(a)
+                val hash = HashMap<String, String>()
+                hash["id"] = jsonObject.optString("id")
+                hash["name"] = jsonObject.optString("name")
+
+                arrayListDistrict.add(hash)
+                list.add(jsonObject.optString("name"))
+
+            }
+
+            if(arrayListDistrict.size>0){
+                val adapter = ArrayAdapter(requireContext(), R.layout.layout_spinner_list, list)
+                adapter.setDropDownViewResource(R.layout.layout_dropdown)
+                binding.spinDistrict.adapter = adapter
+            }
+        }catch (e: Exception){
+            e.printStackTrace()
+        }
     }
 
     @OptIn(DelicateCoroutinesApi::class)
@@ -163,6 +249,7 @@ class RegisterAgent : Fragment(), LocationListener {
             "dob" to ShortCut_To.reverseDate(binding.edtDob.text.toString(), "/",  "-"),
             "region_id" to arrayListRegion[binding.spinRegion.selectedItemPosition-1]["id"]!!,
             "district_id" to arrayListDistrict[binding.spinDistrict.selectedItemPosition-1]["id"]!!,
+            "address" to binding.edtAddress.text.toString(),
             "latitude" to lat,
             "longitude" to long
         )
@@ -204,8 +291,21 @@ class RegisterAgent : Fragment(), LocationListener {
             val jsonObject = JSONObject(res)
             val mess = jsonObject.optString("message")
 
+
             Toast.makeText(requireContext(), mess, Toast.LENGTH_SHORT).show()
             if(mess == "Agent created successfully"){
+                try {
+                    val data = jsonObject.getJSONObject("data")
+                    val agent = Agent(rfid, storage.uSERID!!, data.optString("id"), data.optString("agent_id"), data.optString("name"), data.optString("dob"),
+                        data.optString("phone"), data.optString("address"), binding.spinRegion.selectedItem.toString(), data.optString("region_id"),
+                        binding.spinDistrict.selectedItem.toString(), data.optString("district_id"), long, lat, "", "", "",
+                        "", "Active", data.optString("created_at"), data.optString("updated_at"), data.optString("gender"),
+                        )
+
+                    agentViewModel.insert(agent)
+                }catch (_: Exception){
+
+                }
                 requireActivity().onBackPressed()
             }
             binding.progressBar.visibility = View.GONE

@@ -3,10 +3,10 @@ package com.dawolf.yea.database.agent
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "agent")
+@Entity(tableName = "agent", primaryKeys = ["rfid_no", "userId"])
 data class Agent(
-    @PrimaryKey
     val rfid_no : String,
+    val userId: String,
     val id : String,
     val agent_id: String,
     val name: String,
@@ -26,7 +26,6 @@ data class Agent(
     val status: String,
     val created_at: String,
     val updated_at: String,
-    val gender: String
-
+    val gender: String,
 
 )

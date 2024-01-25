@@ -12,6 +12,8 @@ data class Send(
     val signout_date: String,
     val region_id: String,
     val district_id: String,
+    val lat: String,
+    val longi: String,
     val status: String = "Unsent"
 
 )

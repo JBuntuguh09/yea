@@ -8,12 +8,16 @@ import android.os.Bundle
 
 class MyLocationListener(val context: Context) : LocationListener {
 
+    var lat = "0"
+    var long = "0"
     override fun onLocationChanged(location: Location) {
         val latitude = location.latitude
         val longitude = location.longitude
 
         // Do something with latitude and longitude
-        println("Latitude: $latitude, Longitude: $longitude")
+        lat = latitude.toString()
+        long = longitude.toString()
+
     }
 
     override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {

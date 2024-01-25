@@ -27,7 +27,7 @@ import com.dawolf.yea.database.users.UsersDao
 
 
 @Database(entities = [Login::class, Agent::class, District::class, Supervisor::class, Region::class, Attendance::class, Attendances::class,
-                     Signout::class, Users::class, Send::class], version = 13)
+                     Signout::class, Users::class, Send::class], version = 16)
 abstract class Maindb: RoomDatabase() {
 
     abstract fun loginDao(): LoginDao

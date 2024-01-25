@@ -15,8 +15,13 @@ interface AttendanceDao {
     @Query("select * from attendance")
     fun getAll(): LiveData<List<Attendance>>
 
+    @Query("select * from attendance where userId = :id")
+    fun getAllById(id:String): LiveData<List<Attendance>>
+
     @Query("delete from attendance where rfid = :rfid")
     fun deleteAttendanceByRfid(rfid: String)
+@Query("delete from attendance where rfid = :rfid and userId=:id")
+    fun deleteAttendanceByRfidId(rfid: String, id:String)
 
 
     @Query("delete from attendance")

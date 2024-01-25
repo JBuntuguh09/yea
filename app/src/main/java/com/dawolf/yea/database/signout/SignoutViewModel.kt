@@ -40,4 +40,14 @@ class SignoutViewModel (application: Application) : AndroidViewModel(application
             repo.deleteByRfid(rfid)
         }
     }
+
+    fun getAllById(id: String): LiveData<List<Signout>>{
+        return repo.getAllById(id)
+    }
+
+    fun deleteByRfidId(rfid: String, id: String){
+        viewModelScope.launch(Dispatchers.IO) {
+            repo.deleteByRfidId(rfid, id)
+        }
+    }
 }
