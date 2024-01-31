@@ -17,6 +17,9 @@ interface SendDao {
     @Query("select * from send where type = 'signout' and status = 'Unsent'")
     fun getSendSignout():LiveData<List<Send>>
 
+    @Query("select * from send  where  status = 'Unsent'")
+    fun getAll():LiveData<List<Send>>
+
     @Query("delete from send where id =:id")
     fun deleteSendAttendById(id: String)
 
@@ -34,6 +37,8 @@ interface SendDao {
     fun updateSend(id:String)
 
 
+    @Query("update send set status='Failed' where id =:id")
+    fun updateSendFailed(id:String)
 
 
 

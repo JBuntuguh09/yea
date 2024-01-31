@@ -27,6 +27,9 @@ class AttendancesViewModel (application: Application): AndroidViewModel(applicat
             repo.insert(attendances)
         }
     }
+    fun getAttendanceById(id: String): LiveData<List<Attendances>>{
+        return repo.getAttendancesById(id)
+    }
 
     fun deleteBid(id: String){
         viewModelScope.launch(Dispatchers.IO) {

@@ -76,7 +76,7 @@ class ViewAttendance : Fragment() {
     }
 
     private fun getOffline() {
-        attendancesViewModel.liveData.observe(requireActivity()){data->
+        attendancesViewModel.getAttendanceById(storage.uSERID!!).observe(requireActivity()){data->
             if(data.isNotEmpty()){
                 try {
                     arrayList.clear()
@@ -86,7 +86,7 @@ class ViewAttendance : Fragment() {
                         hash["id"] = jObject.id
                         hash["rfid_no"] = jObject.rfid_id
                         hash["name"] = jObject.agent_name
-                        hash["signout"] = ShortCut_To.convertDateFormat2(jObject.signout_date)
+                        hash["signout"] = if(jObject.signout_date=="null") "" else ShortCut_To.convertDateFormat2(jObject.signout_date)
                         hash["signout_by"] = jObject.signout_by
                         hash["region_id"] = jObject.region_id
                         hash["district_id"] = jObject.district_id
@@ -205,7 +205,7 @@ class ViewAttendance : Fragment() {
                 hash["id"] = jObject.optString("id")
                 hash["rfid_no"] = jObject.optString("rfid_no")
                 hash["name"] = jObject.getJSONObject("agent").optString("name")
-                hash["signout"] = ShortCut_To.convertDateFormat2(jObject.optString("signout_date"))
+                hash["signout"] = if (jObject.optString("signout_date") == "null") "" else ShortCut_To.convertDateFormat2(jObject.optString("signout_date"))
                 hash["signout_by"] = jObject.optString("signout_by")
                 hash["region_id"] = jObject.optString("region_id")
                 hash["district_id"] = jObject.optString("district_id")
@@ -262,7 +262,7 @@ class ViewAttendance : Fragment() {
     }
 
     override fun onResume() {
-        (activity as MainBase).binding.txtTopic.text = "View Attendance"
+        (activity as MainBase).binding.txtTopic.text = "View Sign Ins"
         super.onResume()
     }
 }

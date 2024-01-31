@@ -75,22 +75,22 @@ class RegisterSupervisor : Fragment() {
         binding.btnSubmit.setOnClickListener {
             ShortCut_To.hideKeyboard(requireActivity())
             if(binding.edtName.text.toString().isEmpty()){
-                Toast.makeText(requireContext(), "Enter supervisor name", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Enter Team Leader name", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
             if(binding.edtPhone.text.toString().isEmpty()){
-                Toast.makeText(requireContext(), "Enter supervisor phone", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Enter Team Leader phone", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
             if(binding.spinRegion.selectedItemPosition==0){
-                Toast.makeText(requireContext(), "Select supervisor region", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Select Team Leader region", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
             if(binding.spinDistrict.selectedItemPosition==0){
-                Toast.makeText(requireContext(), "Select supervisor district", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Select Team Leader district", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
@@ -194,7 +194,7 @@ class RegisterSupervisor : Fragment() {
 
                 withContext(Dispatchers.Main){
                     if(res == "[]"){
-                        Toast.makeText(requireContext(), "Error: Failed to create supervisor", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(requireContext(), "Error: Failed to create Team Leader", Toast.LENGTH_SHORT).show()
                         binding.progressBar.visibility = View.GONE
                         binding.btnSubmit.isEnabled = true
 
@@ -206,7 +206,7 @@ class RegisterSupervisor : Fragment() {
             }
         }catch (e: Exception){
             e.printStackTrace()
-            Toast.makeText(requireContext(), "Error: Failed to create supervisor. Please try again", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "Error: Failed to create Team Leader. Please try again", Toast.LENGTH_SHORT).show()
             binding.progressBar.visibility = View.GONE
             binding.btnSubmit.isEnabled = true
 
@@ -227,7 +227,7 @@ class RegisterSupervisor : Fragment() {
                     binding.spinDistrict.selectedItem.toString(), data.optString("district_id"), data.optString("created_at"))
 
                 supervisorViewModel.insert(supervisor)
-            }catch (e: Exception){
+            }catch (_: Exception){
 
             }
 
@@ -240,7 +240,7 @@ class RegisterSupervisor : Fragment() {
             binding.btnSubmit.isEnabled = true
         }catch (e: Exception){
             e.printStackTrace()
-            Toast.makeText(requireContext(), "Error: Failed to create supervisor. Please try again", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "Error: Failed to create Team Leader. Please try again", Toast.LENGTH_SHORT).show()
             binding.progressBar.visibility = View.GONE
             binding.btnSubmit.isEnabled = true
         }

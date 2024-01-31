@@ -14,6 +14,7 @@ class SendViewModel(application: Application) : AndroidViewModel(application)  {
 
     val liveDataAttend : LiveData<List<Send>>
     val liveDataSignout : LiveData<List<Send>>
+    val liveData: LiveData<List<Send>>
 
     private var repo : SendRepo
 
@@ -22,6 +23,7 @@ class SendViewModel(application: Application) : AndroidViewModel(application)  {
         repo = SendRepo(sLogin)
         liveDataAttend = repo.liveDataAttend
         liveDataSignout = repo.liveDataSignout
+        liveData = repo.liveData
 
     }
 
@@ -58,6 +60,12 @@ class SendViewModel(application: Application) : AndroidViewModel(application)  {
     fun updateSend(id: String){
         viewModelScope.launch(Dispatchers.IO) {
             repo.updateSend(id)
+        }
+    }
+
+    fun updateSendFailed(id: String){
+        viewModelScope.launch(Dispatchers.IO) {
+            repo.updateSendFailed(id)
         }
     }
 }

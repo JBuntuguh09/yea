@@ -7,6 +7,7 @@ import com.dawolf.yea.database.region.RegionDao
 class SendRepo(private val sendDao: SendDao) {
     val liveDataAttend: LiveData<List<Send>> = sendDao.getSendAttend()
     val liveDataSignout: LiveData<List<Send>> = sendDao.getSendSignout()
+    val liveData: LiveData<List<Send>> = sendDao.getAll()
 
     fun insert(send: Send){
         sendDao.insertSend(send)
@@ -30,6 +31,10 @@ class SendRepo(private val sendDao: SendDao) {
 
     fun updateSend(id: String){
         sendDao.updateSend(id)
+    }
+
+    fun updateSendFailed(id: String){
+        sendDao.updateSendFailed(id)
     }
 
 

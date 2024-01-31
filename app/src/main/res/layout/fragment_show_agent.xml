@@ -220,7 +220,7 @@
                     android:layout_marginTop="@dimen/baseline_20dp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Supervisor"
+                    android:text="Team Leader"
                     android:textStyle="bold"/>
 
                 <TextView

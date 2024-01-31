@@ -1,22 +1,16 @@
 package com.dawolf.yea
 
 import android.Manifest
-import android.app.PendingIntent
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
-import android.nfc.NfcAdapter
-import android.nfc.Tag
-import android.nfc.tech.IsoDep
-import android.nfc.tech.MifareClassic
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.View
-import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.widget.Toolbar
@@ -27,22 +21,27 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
+import com.dawolf.yea.database.Attendances.Attendances
+import com.dawolf.yea.database.Attendances.AttendancesViewModel
+import com.dawolf.yea.database.agent.Agent
+import com.dawolf.yea.database.agent.AgentViewModel
 import com.dawolf.yea.database.attendance.AttendanceViewModel
 import com.dawolf.yea.database.district.District
 import com.dawolf.yea.database.district.DistrictViewModel
-import com.dawolf.yea.database.login.Login
 import com.dawolf.yea.database.region.Region
 import com.dawolf.yea.database.region.RegionViewModel
 import com.dawolf.yea.database.send.SendViewModel
 import com.dawolf.yea.database.signout.SignoutViewModel
+import com.dawolf.yea.database.supervisor.Supervisor
+import com.dawolf.yea.database.supervisor.SupervisorViewModel
 import com.dawolf.yea.databinding.ActivityMainBaseBinding
-import com.dawolf.yea.dialogue.ShowMe
 import com.dawolf.yea.fragments.StaffBase
 import com.dawolf.yea.fragments.StartPage
 import com.dawolf.yea.fragments.attendance.ViewAttendance
 import com.dawolf.yea.fragments.signout.Signout
 import com.dawolf.yea.fragments.user.ViewUsers
 import com.dawolf.yea.resources.Constant
+import com.dawolf.yea.resources.ShortCut_To
 import com.dawolf.yea.resources.Storage
 import com.dawolf.yea.utils.API
 import com.google.android.material.navigation.NavigationView
@@ -53,7 +52,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
-import java.io.IOException
 
 class MainBase : AppCompatActivity(), LocationListener {
      lateinit var binding: ActivityMainBaseBinding
@@ -71,18 +69,19 @@ class MainBase : AppCompatActivity(), LocationListener {
     lateinit var attendanceViewModel: AttendanceViewModel
     lateinit var signoutViewModel: SignoutViewModel
 
-    private val mAdapter: ArrayAdapter<String>? = null
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var navigationView: NavigationView
     var toolbar: Toolbar? = null
     private var mToggle: ActionBarDrawerToggle? = null
-    private var nfcAdapter: NfcAdapter? = null
-    private var pendingIntent: PendingIntent? = null
     var idCheck = MutableLiveData<String>()
+    var supervisorsCheck = MutableLiveData<String>()
     private lateinit var locationManager: LocationManager
     private val LOCATION_PERMISSION_REQUEST_CODE = 1
     var lat = "0.00"
     var long="0.00"
+    private lateinit var agentViewModel: AgentViewModel
+    private lateinit var supervisorViewModel: SupervisorViewModel
+    private lateinit var attendancesViewModel: AttendancesViewModel
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -97,18 +96,18 @@ class MainBase : AppCompatActivity(), LocationListener {
         sendViewModel = ViewModelProvider(this, defaultViewModelProviderFactory)[SendViewModel::class.java]
         attendanceViewModel = ViewModelProvider(this, defaultViewModelProviderFactory)[AttendanceViewModel::class.java]
         signoutViewModel = ViewModelProvider(this, defaultViewModelProviderFactory)[SignoutViewModel::class.java]
+
+        agentViewModel = ViewModelProvider(this, defaultViewModelProviderFactory)[AgentViewModel::class.java]
+        supervisorViewModel = ViewModelProvider(this, defaultViewModelProviderFactory)[SupervisorViewModel::class.java]
+        attendancesViewModel = ViewModelProvider(this, defaultViewModelProviderFactory)[AttendancesViewModel::class.java]
+
+
         locationManager = getSystemService(LOCATION_SERVICE) as LocationManager
         checkLocationPermission()
 
-        nfcAdapter = NfcAdapter.getDefaultAdapter(this)
 
-        if (nfcAdapter == null) {
 
-        } else {
-            pendingIntent = PendingIntent.getActivity(
-                this, 0, Intent(this, javaClass).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0
-            )
-        }
+
 
 
         getRegion()
@@ -130,6 +129,10 @@ class MainBase : AppCompatActivity(), LocationListener {
         idCheck.value = newValue
     }
 
+    fun updateSupLiveData(newValue: String) {
+        supervisorsCheck.value = newValue
+    }
+
     fun getButtons(){
         toolbar = findViewById(R.id.tabSettings)
         navigationView = findViewById(R.id.navView)
@@ -148,13 +151,13 @@ class MainBase : AppCompatActivity(), LocationListener {
 
         binding.cardStaff.setOnClickListener {
             binding.drawLay.closeDrawer(GravityCompat.START)
-            navTo(StaffBase(), "Staff", "Start", 1)
+            navTo(StaffBase(), "Registration", "Start", 1)
 
         }
 
         binding.cardAttendance.setOnClickListener {
             binding.drawLay.closeDrawer(GravityCompat.START)
-            navTo(ViewAttendance(), "Attendance", "Start", 1)
+            navTo(ViewAttendance(), "Sign In", "Start", 1)
         }
 
         binding.cardUsers.setOnClickListener {
@@ -179,10 +182,11 @@ class MainBase : AppCompatActivity(), LocationListener {
         sendViewModel.liveDataAttend.observe(this){data->
             if(data.isNotEmpty()){
                 try {
-                    println("here we go  "+ data)
+
                     for (a in data.indices){
                         sendAttendance(data[a].id.toString(), data[a].rfid, data[a].region_id, data[a].district_id, data[a].lat, data[a].longi)
                     }
+
                 }catch (e:Exception){
                     e.printStackTrace()
                 }
@@ -192,13 +196,20 @@ class MainBase : AppCompatActivity(), LocationListener {
         sendViewModel.liveDataSignout.observe(this){data->
             if(data.isNotEmpty()){
                 try {
-                    println("bee we go $data")
+
                     for (a in data.indices){
                         senDSign(data[a].id.toString(), data[a].rfid, data[a].signout_date)
                     }
                 }catch (e:Exception){
                     e.printStackTrace()
                 }
+            }
+        }
+
+        sendViewModel.liveData.observe(this){data->
+            if(data.isNotEmpty()){
+                val arrList = ArrayList<HashMap<String, String>>()
+
             }
         }
     }
@@ -240,16 +251,18 @@ class MainBase : AppCompatActivity(), LocationListener {
 
     private fun setSignInfo(res: String, id: String, rfid: String) {
         try {
-            println("bbbbbbbbbb"+res)
+
             val jsonObject = JSONObject(res)
             val mess = jsonObject.optString("message")
 
             // Toast.makeText(this@MainBase, mess, Toast.LENGTH_SHORT).show()
             signoutViewModel.deleteByRfidId(rfid, storage.uSERID!!)
             sendViewModel.updateSend(id)
+            Toast.makeText(this, "Successfully signed out  $rfid", Toast.LENGTH_SHORT).show()
 
         }catch (e: Exception){
             e.printStackTrace()
+            Toast.makeText(this, "Failed to signed out  $rfid", Toast.LENGTH_SHORT).show()
 
         }
     }
@@ -420,7 +433,9 @@ class MainBase : AppCompatActivity(), LocationListener {
             }
         }catch (e: Exception){
             e.printStackTrace()
-            Toast.makeText(this@MainBase, "Error: Failed to create supervisor", Toast.LENGTH_SHORT).show()
+            attendanceViewModel.deleteAllByRfidId(rfid, storage.uSERID!!)
+            sendViewModel.updateSend(id)
+            Toast.makeText(this@MainBase, "Error: Failed to create sign in", Toast.LENGTH_SHORT).show()
 
 
 
@@ -431,15 +446,24 @@ class MainBase : AppCompatActivity(), LocationListener {
     private fun setInfo(res: String, id: String, rfid: String, regId: String, distId: String) {
         try {
             val jsonObject = JSONObject(res)
-            val mess = jsonObject.optString("message")
+           // val mess = jsonObject.optString("message")
 
            // Toast.makeText(this@MainBase, mess, Toast.LENGTH_SHORT).show()
             attendanceViewModel.deleteAllByRfidId(rfid, storage.uSERID!!)
             sendViewModel.updateSend(id)
-            if(mess == "Attendance created successfully"){
-                println("morking")
-            }
+
+            Toast.makeText(this, "Successfully signed in $rfid", Toast.LENGTH_SHORT).show()
+//            if(mess == "Attendance created successfully"){
+//
+//
+//            }else{
+//
+////                sendViewModel.updateSend(id)
+//            }
         }catch (e: Exception){
+            attendanceViewModel.deleteAllByRfidId(rfid, storage.uSERID!!)
+            sendViewModel.updateSend(id)
+            Toast.makeText(this, "Failed to signed in for $rfid", Toast.LENGTH_SHORT).show()
             e.printStackTrace()
 
         }
@@ -454,150 +478,25 @@ class MainBase : AppCompatActivity(), LocationListener {
         super.onBackPressed()
     }
 
-    override fun onResume() {
-        super.onResume()
-        nfcAdapter?.enableForegroundDispatch(this, pendingIntent, null, null)
-    }
 
-    override fun onPause() {
-        super.onPause()
-        nfcAdapter?.disableForegroundDispatch(this)
-    }
-
-    override fun onNewIntent(intent: Intent) {
-        super.onNewIntent(intent)
-        if (NfcAdapter.ACTION_TAG_DISCOVERED == intent.action) {
-            // Extract information from the intent's extras if needed
-            val tag: Tag? = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG)
-
-            // Process the tag data as needed
-            // You might want to use NFC-related classes like Ndef or IsoDep to handle specific tag types
-
-            // For example, you can read the UID of the tag:
-            val uidBytes: ByteArray? = tag?.id
-
-            val uid = uidBytes?.joinToString(":") { byte -> String.format("%02X", byte) }
-            val uidString: String = byteArrayToHexString(uidBytes!!)
-
-            // Now 'uidString' contains the UID of the NFC tag
-            // Print or use the UID as needed
-            println("NFC Tag UID: $uidString")
-
-
-            // Now 'uid' contains the UID of the NFC tag
-            // Print the UID as a string
-            println("NFC Tag UID: $uid")
-
-
-
-
-            if (tag != null) {
-                val mifareClassic = MifareClassic.get(tag)
-
-                try {
-                    mifareClassic?.connect()
-
-                    if (mifareClassic != null && mifareClassic.isConnected) {
-                        // Authenticate with the MIFARE Classic card
-                        val sector = 0 // Sector 0
-                        mifareClassic.authenticateSectorWithKeyA(sector, MifareClassic.KEY_DEFAULT)
-
-                        // Read the content of block 0 in sector 0
-                        val blockNumber = sector * 4 // Each sector has 4 blocks
-                        val blockData = mifareClassic.readBlock(blockNumber)
-
-                        // Convert blockData to a readable format
-                        val dataAsString = String(blockData, Charsets.UTF_8)
-
-                        println("Data from Sector $sector, Block $blockNumber: $dataAsString")
-                        val hexString = blockData.joinToString("") { it.toUByte().toString(16).padStart(2, '0') }
-
-                        println("Hexadecimal Data from Sector $sector, Block $blockNumber: $hexString")
-                        updateLiveData(hexString)
-                        ShowMe.ScanOptions(this, binding.linList, hexString, attendanceViewModel, signoutViewModel)
-
-                    } else {
-                        println("MifareClassic is null or not connected.")
-                    }
-                } catch (e: IOException) {
-                    println("Error during MifareClassic communication: ${e.message}")
-                } finally {
-                    try {
-                        mifareClassic?.close()
-                    } catch (e: IOException) {
-                        println("Error closing MifareClassic: ${e.message}")
-                    }
-                }
-            }
-
-            // Handle the UID or any other data you're interested in
-        }
-
-        if (NfcAdapter.ACTION_TECH_DISCOVERED == intent.action) {
-            val tag = intent.getParcelableExtra<Tag>(NfcAdapter.EXTRA_TAG)
-
-            if (tag != null) {
-                val isoDep = IsoDep.get(tag)
-
-                try {
-                    isoDep?.connect()
-
-                    if (isoDep != null && isoDep.isConnected) {
-                        // Authenticate with the MIFARE Classic card
-                        val key = byteArrayOf(0xFF.toByte(), 0xFF.toByte(), 0xFF.toByte(), 0xFF.toByte(), 0xFF.toByte(), 0xFF.toByte())
-                        val sector = 0 // Sector 0
-                        isoDep.transceive(byteArrayOf(0x1A.toByte(), 0.toByte(), 0.toByte(), 0.toByte(), 0.toByte(), 0.toByte(), 0.toByte()))
-                        isoDep.transceive(byteArrayOf(0x0A.toByte(), 0.toByte(), 0.toByte(), 0.toByte(), sector.toByte()))
-
-                        // Read the content of block 0 in sector 0
-                        val blockNumber = sector * 4 // Each sector has 4 blocks
-                        val readCommand = byteArrayOf(0x30.toByte(), blockNumber.toByte())
-                        val blockData = isoDep.transceive(readCommand)
-
-                        // Convert blockData to a readable format
-                        val dataAsString = String(blockData, Charsets.UTF_8)
-
-                        println("Data from Sector $sector, Block $blockNumber: $dataAsString")
-                    } else {
-                        println("IsoDep is null or not connected.")
-                    }
-                } catch (e: IOException) {
-                    println("Error during IsoDep communication: ${e.message}")
-                } finally {
-                    try {
-                        isoDep?.close()
-                    } catch (e: IOException) {
-                        println("Error closing IsoDep: ${e.message}")
-                    }
-                }
-            }
-        }
-    }
-
-    private fun byteArrayToHexString(array: ByteArray): String {
-        val hexChars = CharArray(array.size * 2)
-        for (i in array.indices) {
-            val v = array[i].toInt() and 0xFF
-            hexChars[i * 2] = "0123456789ABCDEF"[v ushr 4]
-            hexChars[i * 2 + 1] = "0123456789ABCDEF"[v and 0x0F]
-        }
-
-        return String(hexChars)
-    }
 
     private fun checkLocationPermission() {
-        if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            ActivityCompat.requestPermissions(
-                this,
-                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                LOCATION_PERMISSION_REQUEST_CODE
-            )
-        } else {
-            requestLocationUpdates()
+        try {
+            if (ActivityCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                    LOCATION_PERMISSION_REQUEST_CODE
+                )
+            } else {
+                requestLocationUpdates()
+            }
+        }catch (e:Exception){
+            e.printStackTrace()
         }
     }
 
@@ -714,8 +613,11 @@ class MainBase : AppCompatActivity(), LocationListener {
                 storage.email = email
                 storage.phone = phone
                 //storage.pASSWORD = binding.edtPassword.text.toString()
+                //println("UsererIentifier $userId")
 
-
+                getAgents()
+                getMySupervisors()
+                getAttendance()
 
             }else{
 
@@ -728,11 +630,231 @@ class MainBase : AppCompatActivity(), LocationListener {
 
             }
         }catch (e:Exception){
-            println("============"+res)
+
           //  Toast.makeText(this, "Error: Please try again", Toast.LENGTH_SHORT).show()
             e.printStackTrace()
         }
 
+    }
+
+    @OptIn(DelicateCoroutinesApi::class)
+    fun getSupervisors() {
+
+        //progress.visibility = View.VISIBLE
+        val api = API()
+        GlobalScope.launch {
+            try {
+
+
+                val res = api.getAPI(Constant.URL+"api/supervisors",  this@MainBase)
+                withContext(Dispatchers.Main){
+
+                    setSuperInfo(res)
+                }
+            }catch (e: Exception){
+                e.printStackTrace()
+                binding.progressBar.visibility = View.GONE
+                withContext(Dispatchers.Main){
+                    //Toast.makeText(this@MainBase, "No data found.", Toast.LENGTH_SHORT).show()
+
+                }
+            }
+        }
+    }
+
+    private fun setSuperInfo(res: String) {
+        binding.progressBar.visibility = View.GONE
+        try {
+
+            val jsonObject = JSONObject(res)
+            val data = jsonObject.getJSONArray("data")
+            updateSupLiveData(res)
+
+
+        }catch (e: Exception){
+            e.printStackTrace()
+        }
+    }
+
+    fun showSending(){
+        val layoutInflater = LayoutInflater.from(this)
+        val view  = layoutInflater.inflate(R.layout.layout_pop_send, binding.linMain, false)
+
+    }
+
+    ////////////////////
+    @OptIn(DelicateCoroutinesApi::class)
+    private fun getAgents(){
+
+        //binding.progressBar.visibility = View.VISIBLE
+        val api = API()
+        GlobalScope.launch {
+            try {
+
+
+                val res = api.getAPI(Constant.URL+"api/agent/user/${storage.uSERID!!}",  this@MainBase)
+                withContext(Dispatchers.Main){
+
+                    setAgentInfo(res)
+                }
+            }catch (e: Exception){
+                e.printStackTrace()
+                binding.progressBar.visibility = View.GONE
+                withContext(Dispatchers.Main){
+
+
+                }
+            }
+        }
+    }
+
+    private fun setAgentInfo(res: String) {
+        try {
+            var num = 0
+            val jsonObject = JSONObject(res)
+            val data = jsonObject.getJSONArray("data")
+            agentViewModel.deleteAgent(storage.uSERID!!)
+            for(a in 0 until data.length()){
+                val jObject = data.getJSONObject(a)
+                if (jObject.getString("status")=="Active"){
+                    num +=1
+                }
+                val agent = Agent(jObject.getString("rfid_no"), storage.uSERID!!,jObject.getString("id"), jObject.getString("agent_id"),
+                    jObject.getString("name"), jObject.getString("dob"), jObject.getString("phone"), jObject.getString("address"),
+                    jObject.getJSONObject("region").getString("name"), jObject.getString("region_id")
+                    , jObject.getJSONObject("district").getString("name"), jObject.getString("district_id"),
+                    jObject.getString("rfid_no"), jObject.getString("longitude"),
+                    jObject.getJSONObject("supervisor").getString("name") ,jObject.getString("supervisor_id"),
+                    jObject.getJSONObject("supervisor").getString("email"), jObject.getJSONObject("supervisor").getString("phone"),
+                    jObject.getString("status"), jObject.getString("created_at"), jObject.getString("updated_at"), jObject.getString("gender"))
+
+                agentViewModel.insert(agent)
+            }
+
+
+        }catch (e: Exception){
+            e.printStackTrace()
+        }
+    }
+
+    @OptIn(DelicateCoroutinesApi::class)
+    private fun getMySupervisors(){
+
+        //binding.progressBar.visibility = View.VISIBLE
+        val api = API()
+        GlobalScope.launch {
+            try {
+
+
+                val res = api.getAPI(Constant.URL+"api/supervisor/user/${storage.uSERID!!}",  this@MainBase)
+                withContext(Dispatchers.Main){
+
+                    setMySuperInfo(res)
+                }
+            }catch (e: Exception){
+                e.printStackTrace()
+                binding.progressBar.visibility = View.GONE
+                withContext(Dispatchers.Main){
+
+
+                }
+            }
+        }
+    }
+
+    private fun setMySuperInfo(res: String) {
+        try {
+            var num = 0
+            val jsonObject = JSONObject(res)
+            val data = jsonObject.getJSONArray("data")
+            supervisorViewModel.deleteSuper(storage.uSERID!!)
+            for(a in 0 until data.length()){
+                val jObject = data.getJSONObject(a)
+                if (jObject.getString("status")=="Active"){
+                    num +=1
+                }
+                val supervisor = Supervisor(jObject.getString("supervisor_id"), storage.uSERID!!,jObject.getString("id"), jObject.getString("name"),
+                    jObject.getString("phone"), jObject.getString("status"),
+                    jObject.getJSONObject("region").getString("name"), jObject.getString("region_id")
+                    , jObject.getJSONObject("district").getString("name"), jObject.getString("district_id"), jObject.getString("created_at"))
+
+                supervisorViewModel.insert(supervisor)
+            }
+
+
+        }catch (e: Exception){
+            e.printStackTrace()
+        }
+    }
+
+
+    @OptIn(DelicateCoroutinesApi::class)
+    private fun getAttendance(){
+
+        //binding.progressBar.visibility = View.VISIBLE
+        val api = API()
+        GlobalScope.launch {
+            try {
+
+
+                val res = api.getAPI(Constant.URL+"api/attendance/user/${storage.uSERID!!}",  this@MainBase)
+                withContext(Dispatchers.Main){
+
+                    setAttendInfo(res)
+                }
+            }catch (e: Exception){
+                e.printStackTrace()
+                binding.progressBar.visibility = View.GONE
+                withContext(Dispatchers.Main){
+                    // Toast.makeText(requireContext(), "No data found.", Toast.LENGTH_SHORT).show()
+
+                }
+            }
+        }
+    }
+
+    private fun setAttendInfo(res: String) {
+        try {
+            binding.progressBar.visibility = View.GONE
+
+            var day = 0
+            var week = 0
+            var month = 0
+            val jsonObject = JSONObject(res)
+            val data = jsonObject.getJSONArray("data")
+            attendancesViewModel.deleteBid(storage.uSERID!!)
+            for(a in 0 until data.length()){
+                val jObject = data.getJSONObject(a)
+
+                if(ShortCut_To.checkIfWithinDayWeekMonth(jObject.getString("created_at"), "day")){
+                    day += 1
+                }
+
+                if(ShortCut_To.checkIfWithinDayWeekMonth(jObject.getString("created_at"), "week")){
+                    week += 1
+                }
+
+                if(ShortCut_To.checkIfWithinDayWeekMonth(jObject.getString("created_at"), "month")){
+                    month += 1
+                }
+
+
+                val attendances = Attendances(jObject.getString("id"), storage.uSERID!!,jObject.getString("rfid_no"),
+                    jObject.getJSONObject("region").getString("name"), jObject.getString("region_id"),
+                    jObject.getJSONObject("district").getString("name"), jObject.getString("district_id"),
+                    jObject.getJSONObject("supervisor").getString("name"), jObject.getJSONObject("supervisor").getString("id"),
+                    jObject.getJSONObject("agent").getString("name"),  jObject.getJSONObject("agent").getString("id"),
+                    jObject.getString("signout_date"), jObject.getString("signout_by"), jObject.getString("created_at"))
+                attendancesViewModel.insert(attendances)
+
+
+            }
+
+
+
+        }catch (e: Exception){
+            e.printStackTrace()
+        }
     }
 
 }

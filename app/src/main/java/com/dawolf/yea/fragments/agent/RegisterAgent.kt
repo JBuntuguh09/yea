@@ -24,6 +24,7 @@ import com.dawolf.yea.R
 import com.dawolf.yea.RFIDActivity2
 import com.dawolf.yea.database.agent.Agent
 import com.dawolf.yea.database.agent.AgentViewModel
+import com.dawolf.yea.database.supervisor.Supervisor
 import com.dawolf.yea.databinding.FragmentRegisterAgentBinding
 import com.dawolf.yea.resources.Constant
 import com.dawolf.yea.resources.MyLocationListener
@@ -57,11 +58,12 @@ class RegisterAgent : Fragment(), LocationListener {
     private lateinit var storage: Storage
     private var arrayListRegion = ArrayList<HashMap<String, String>>()
     private var arrayListDistrict = ArrayList<HashMap<String, String>>()
+    private var arrayListSup = ArrayList<HashMap<String, String>>()
     var rfid =""
     private lateinit var locationManager: LocationManager
     private val LOCATION_PERMISSION_REQUEST_CODE = 1
-    var lat = "0.00"
-    var long="0.00"
+    var lat = "1.00"
+    var long="1.00"
     private lateinit var agentViewModel: AgentViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -84,15 +86,40 @@ class RegisterAgent : Fragment(), LocationListener {
         agentViewModel = ViewModelProvider(requireActivity(), defaultViewModelProviderFactory)[AgentViewModel::class.java]
 
         getButtons()
+        (activity as MainBase).getSupervisors()
+        checkLocationPermission()
         return view
     }
 
     private fun getButtons() {
-        (activity as MainBase).idCheck.observe(requireActivity()){data->
+        (activity as MainBase).supervisorsCheck.observe(requireActivity()){data->
+            if(data!=null){
+                val jsonObject = JSONObject(data)
+                val jdata = jsonObject.getJSONArray("data")
+                val list = ArrayList<String>()
+                list.add("Select Team Leader")
+               arrayListSup.clear()
+                for(a in 0 until jdata.length()){
+                    val jObject = jdata.getJSONObject(a)
+                    val hash = HashMap<String, String>()
 
-            if (data!=null){
-                storage.randVal = data
+                    hash["id"] = jObject.optString("id")
+                    hash["supervisor_id"] = jObject.optString("supervisor_id")
+                    hash["name"] = jObject.optString("name")
+                    hash["status"] = jObject.optString("status")
+
+                    if (hash["status"]!!.lowercase() == "active") {
+                        arrayListSup.add(hash)
+                        list.add(hash["name"]!!)
+                    }
+                }
+                val arrayAdapter = ArrayAdapter(requireContext(), R.layout.layout_spinner_list, list)
+                arrayAdapter.setDropDownViewResource(R.layout.layout_dropdown)
+                binding.spinSupervisor.adapter = arrayAdapter
+                binding.spinSupervisor.visibility = View.VISIBLE
             }
+
+
         }
 
         binding.btnScan.setOnClickListener {
@@ -126,7 +153,7 @@ class RegisterAgent : Fragment(), LocationListener {
         binding.btnSubmit.setOnClickListener {
             ShortCut_To.hideKeyboard(requireActivity())
             if(rfid==""){
-                Toast.makeText(requireContext(), "Scan your agent card", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Scan your Beneficiary card", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
             if(binding.edtName.text.toString().isEmpty()){
@@ -134,26 +161,26 @@ class RegisterAgent : Fragment(), LocationListener {
                 return@setOnClickListener
             }
             if(binding.edtName.text.toString().isEmpty()){
-                Toast.makeText(requireContext(), "Enter agent date of birth", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Enter Beneficiary date of birth", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
             if(binding.spinGender.selectedItemPosition==0){
-                Toast.makeText(requireContext(), "Select agent gender", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Select Beneficiary gender", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
             if(binding.edtPhone.text.toString().isEmpty()){
-                Toast.makeText(requireContext(), "Enter agent phone", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Enter Beneficiary phone", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
             if(binding.spinRegion.selectedItemPosition==0){
-                Toast.makeText(requireContext(), "Select agent region", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Select Beneficiary region", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
             if(binding.spinDistrict.selectedItemPosition==0){
-                Toast.makeText(requireContext(), "Select agent district", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Select Beneficiary district", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
             requireActivity().runOnUiThread {
@@ -265,7 +292,7 @@ class RegisterAgent : Fragment(), LocationListener {
 
                 withContext(Dispatchers.Main){
                     if(res == "[]"){
-                        Toast.makeText(requireContext(), "Error: Failed to create agent", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(requireContext(), "Error: Failed to create Beneficiary", Toast.LENGTH_SHORT).show()
                         binding.progressBar.visibility = View.GONE
                         binding.btnSubmit.isEnabled = true
 
@@ -347,7 +374,7 @@ class RegisterAgent : Fragment(), LocationListener {
             val jsonObject = JSONObject(res)
             var data = jsonObject.getJSONArray("data")
             val list = ArrayList<String>()
-            list.add("Select supervisor region")
+            list.add("Select Beneficiary region")
             for(a in 0 until data.length()){
                 val jObject = data.getJSONObject(a)
                 val hash = HashMap<String, String>()
@@ -400,7 +427,7 @@ class RegisterAgent : Fragment(), LocationListener {
             val jsonObject = JSONObject(res)
             val data = jsonObject.getJSONArray("data")
             val list = ArrayList<String>()
-            list.add("Select supervisor districts")
+            list.add("Select Beneficiary districts")
             for(a in 0 until data.length()){
                 val jObject = data.getJSONObject(a)
                 val hash = HashMap<String, String>()
@@ -433,7 +460,7 @@ class RegisterAgent : Fragment(), LocationListener {
             binding.btnScan.text = storage.randVal
             rfid = storage.randVal!!
         }
-        checkLocationPermission()
+       // checkLocationPermission()
     }
 
     private fun checkLocationPermission() {
