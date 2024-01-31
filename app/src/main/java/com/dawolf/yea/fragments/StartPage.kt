@@ -22,11 +22,13 @@ import com.dawolf.yea.database.supervisor.Supervisor
 import com.dawolf.yea.database.supervisor.SupervisorViewModel
 import com.dawolf.yea.databinding.FragmentStartPageBinding
 import com.dawolf.yea.fragments.agent.Agents
+import com.dawolf.yea.fragments.agent.RegisterAgent
 import com.dawolf.yea.fragments.attendance.AttendancePeriod
 import com.dawolf.yea.fragments.attendance.NewAttendance
 import com.dawolf.yea.fragments.attendance.ViewAttendance
 import com.dawolf.yea.fragments.signout.AttendanceSignout
 import com.dawolf.yea.fragments.signout.Signout
+import com.dawolf.yea.fragments.supervisor.RegisterSupervisor
 import com.dawolf.yea.fragments.supervisor.Supervisors
 import com.dawolf.yea.fragments.user.ViewUsers
 import com.dawolf.yea.resources.Constant
@@ -96,9 +98,10 @@ class StartPage : Fragment() {
 
         getOffline()
         getButtons()
+        getAttendance()
         getAgents()
         getSupervisors()
-        getAttendance()
+
 
 
         return view
@@ -134,7 +137,7 @@ class StartPage : Fragment() {
             }
         }
 
-        attendancesViewModel.liveData.observe(viewLifecycleOwner){data->
+        attendancesViewModel.getAttendanceById(storage.uSERID!!).observe(viewLifecycleOwner){data->
             var day = 0
             var week = 0
             var month = 0
@@ -199,8 +202,8 @@ class StartPage : Fragment() {
         }
 
         binding.cardAttendance.setOnClickListener {
-//            ShortCut_To.blinkCardView(binding.cardStaff, requireActivity())
-            (activity as MainBase).navTo(ViewAttendance(), "Attendance", "Start", 1)
+
+            (activity as MainBase).navTo(ViewAttendance(), "Sign Ins", "Start", 1)
         }
 
         binding.cardUsers.setOnClickListener {
@@ -215,7 +218,7 @@ class StartPage : Fragment() {
 
         binding.cardDaily.setOnClickListener {
             if(binding.txtDay.text.toString() == "0"){
-                Toast.makeText(requireContext(), "There is no attendance for today", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "There is no sign ins for today", Toast.LENGTH_SHORT).show()
             }else {
                 storage.period = "day"
                 (activity as MainBase).navTo(AttendancePeriod(), "Attendance", "Start", 1)
@@ -225,19 +228,19 @@ class StartPage : Fragment() {
         binding.cardWeekly.setOnClickListener {
 
             if(binding.txtWeek.text.toString() == "0"){
-                Toast.makeText(requireContext(), "There is no attendance for this month", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "There are no sign in for this month", Toast.LENGTH_SHORT).show()
             }else {
                 storage.period = "week"
-                (activity as MainBase).navTo(AttendancePeriod(), "Attendance", "Start", 1)
+                (activity as MainBase).navTo(AttendancePeriod(), "Sign In", "Start", 1)
             }
         }
         binding.cardMonthly.setOnClickListener {
 
             if(binding.txtMonth.text.toString() == "0"){
-                Toast.makeText(requireContext(), "There is no attendance for this month", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "There are no sign ins for this month", Toast.LENGTH_SHORT).show()
             }else {
                 storage.period = "month"
-                (activity as MainBase).navTo(AttendancePeriod(), "Attendance", "Start", 1)
+                (activity as MainBase).navTo(AttendancePeriod(), "Sign In", "Start", 1)
             }
         }
 
@@ -256,11 +259,20 @@ class StartPage : Fragment() {
         }
 
         binding.cardAgent.setOnClickListener {
-            (activity as MainBase).navTo(Agents(), "Agents", "Welcome", 1)
+            if(binding.txtAgent.text.toString() == "0"){
+                storage.randVal = ""
+                (activity as MainBase).navTo(RegisterAgent(), "New Agent", "Welcome", 1)
+            }else {
+                (activity as MainBase).navTo(Agents(), "Agents", "Welcome", 1)
+            }
         }
 
         binding.cardSuper.setOnClickListener {
-            (activity as MainBase).navTo(Supervisors(), "Supervisors", "Welcome", 1)
+            if(binding.txtSuper.text.toString() == "0"){
+                (activity as MainBase).navTo(RegisterSupervisor(), "New Supervisor", "Welcome", 1)
+            }else {
+                (activity as MainBase).navTo(Supervisors(), "Supervisors", "Welcome", 1)
+            }
         }
 
     }

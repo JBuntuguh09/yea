@@ -113,7 +113,7 @@ class Supervisors : Fragment() {
 
     private fun getButtons() {
         binding.floatAdd.setOnClickListener {
-            (activity as MainBase).navTo(RegisterSupervisor(), "New Supervisor", "Supervisor", 1)
+            (activity as MainBase).navTo(RegisterSupervisor(), "New Team Leader", "Team Leaders", 1)
         }
 
         binding.edtSearch.setOnTouchListener(View.OnTouchListener { v, event ->
@@ -241,6 +241,6 @@ class Supervisors : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        (activity as MainBase).binding.txtTopic.text = "Supervisors"
+        (activity as MainBase).binding.txtTopic.text = "Team Leaders"
     }
 }

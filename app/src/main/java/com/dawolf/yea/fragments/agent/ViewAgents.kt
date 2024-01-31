@@ -87,7 +87,7 @@ class ViewAgents : Fragment() {
 
         binding.floatAdd.setOnClickListener {
             storage.randVal = ""
-            (activity as MainBase).navTo(RegisterAgent(), "New Agent", "Staff", 1)
+            (activity as MainBase).navTo(RegisterAgent(), "New Beneficiary", "Staff", 1)
         }
 
         agentViewModel.getAgent(storage.uSERID!!).observe(requireActivity()){data->

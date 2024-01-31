@@ -107,22 +107,22 @@ class EditSupervisor : Fragment() {
         binding.btnSubmit.setOnClickListener {
             ShortCut_To.hideKeyboard(requireActivity())
             if(binding.edtName.text.toString().isEmpty()){
-                Toast.makeText(requireContext(), "Enter supervisor name", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Enter Team Leader name", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
             if(binding.edtPhone.text.toString().isEmpty()){
-                Toast.makeText(requireContext(), "Enter supervisor phone", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Enter Team Leader phone", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
             if(binding.spinRegion.selectedItemPosition==0){
-                Toast.makeText(requireContext(), "Select supervisor region", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Select Team Leader region", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
             if(binding.spinDistrict.selectedItemPosition==0){
-                Toast.makeText(requireContext(), "Select supervisor district", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Select Team Leader district", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 

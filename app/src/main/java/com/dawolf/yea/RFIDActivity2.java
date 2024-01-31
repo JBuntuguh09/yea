@@ -35,6 +35,7 @@ import com.dawolf.yea.databinding.ActivityRfidactivity2Binding;
 import com.dawolf.yea.models.Readmode;
 import com.dawolf.yea.resources.ShortCut_To;
 import com.dawolf.yea.resources.Storage;
+import com.dawolf.yea.utils.API;
 import com.dawolf.yea.utils.AppController;
 
 import com.dawolf.yea.utils.AppUtils;
@@ -77,8 +78,8 @@ public class RFIDActivity2 extends AppCompatActivity {
     ArrayList<HashMap<String, String>> arrayList = new ArrayList<>();
     private LocationManager locationManager;
     private int LOCATION_PERMISSION_REQUEST_CODE = 100;
-    String lats = "0.00";
-    String longs ="0.00";
+    String lats = "1.00";
+    String longs ="1.00";
     private Storage storage ;
 
     private SendViewModel sendViewModel;
@@ -96,11 +97,12 @@ public class RFIDActivity2 extends AppCompatActivity {
         sendViewModel =  new ViewModelProvider(this, getDefaultViewModelProviderFactory()).get(SendViewModel.class);
 
         if(AppController.mService!=null) {
-
+            binding.startBtn.setEnabled(true);
             uhf_6c = (ISO1800_6C) AppController.mService.getISO1800_6C();
             DevBeep.init(RFIDActivity2.this);
 
         }else {
+            binding.startBtn.setEnabled(false);
             Log.e("RFIDActivity", "Status of AppController.mService==> false" + AppController.getInstance().getIsOpen());
         }
 
@@ -133,12 +135,24 @@ public class RFIDActivity2 extends AppCompatActivity {
                     for (int a=0; a<readermodes.size(); a++){
                         //sendData
                         if(!list.contains(readermodes.get(a).getEPCNo())) {
-                            Send send = new Send(0, readermodes.get(a).getEPCNo(), "attendance", "", storage.getRegionId(), storage.getDistrictId(),
+                            String regId = storage.getRegionId();
+                            String distId = storage.getDistrictId();
+                            if(Objects.equals(storage.getRegionId(), "null")) {
+                               regId = "01b28b8d-8bfa-44b6-925b-ea1c27ccf5de";
+                            }
+                            if(Objects.equals(storage.getDistrictId(), "null")) {
+                                distId = "171bcd54-93ec-4286-8b7a-5d9f6808a810";
+                            }
+                            assert distId != null;
+                            assert regId != null;
+
+                            Send send = new Send(0, readermodes.get(a).getEPCNo(), "attendance", "", regId, distId,
                                     lats, longs, "Unsent");
                             sendViewModel.insert(send);
                             list.add(readermodes.get(a).getEPCNo());
                         }
                     }
+                    Toast.makeText(this, "Sending Sign Ins", Toast.LENGTH_SHORT).show();
                     finish();
                 }else if(Objects.equals(storage.getProject(), "Signout")){
                     ArrayList<String> list = new ArrayList<>();
@@ -152,12 +166,15 @@ public class RFIDActivity2 extends AppCompatActivity {
                             list.add(readermodes.get(a).getEPCNo());
                         }
                     }
+                    Toast.makeText(this, "Sending Sign Ins", Toast.LENGTH_SHORT).show();
                     finish();
                 }
             }
 
         });
     }
+
+
 
     void forceStartRfid(){
 
@@ -228,12 +245,16 @@ public class RFIDActivity2 extends AppCompatActivity {
          * it to reopen the scanning function.
          * Fingers Crossed this works all the time. Update--- It works all the time. Yaaaasss!!!
          * **/
-        AppController.mService.open();
+        try{
+            AppController.mService.open();
 
-        if(startBtn.getText().toString().equalsIgnoreCase(getResources().getString(R.string.stop)))
-        {
-            isLoop=true;
-            LoopReadEPC();
+            if(startBtn.getText().toString().equalsIgnoreCase(getResources().getString(R.string.stop)))
+            {
+                isLoop=true;
+                LoopReadEPC();
+            }
+        }catch (Exception e){
+            e.printStackTrace();
         }
 
     }
@@ -241,18 +262,21 @@ public class RFIDActivity2 extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         isLoop = false;
-        AppController.mService.close();
+        try {
+            AppController.mService.close();
 
-        Log.e("RFIDActivity.OnD", "Status of AppController.mService==> " + AppController.getInstance().getIsOpen());
+            Log.e("RFIDActivity.OnD", "Status of AppController.mService==> " + AppController.getInstance().getIsOpen());
+        }catch (Exception e){
+            e.printStackTrace();
+        }
 
     }
 
 
     public void LoopReadEPC() {
 
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
+        try {
+            Thread thread = new Thread(() -> {
                 while (isLoop) {
                     uhf_6c.inventory(callback);
                     if (!isLoop) {
@@ -266,9 +290,11 @@ public class RFIDActivity2 extends AppCompatActivity {
 
                     }
                 }
-            }
-        });
-        thread.start();
+            });
+            thread.start();
+        }catch (Exception e){
+            Toast.makeText(this, "Sorry. Your device does not support this feature", Toast.LENGTH_SHORT).show();
+        }
     }
 
     public void startRFIDScan(View view) {
@@ -563,5 +589,8 @@ public class RFIDActivity2 extends AppCompatActivity {
             }
         }
     }
+
+
+
 
     }

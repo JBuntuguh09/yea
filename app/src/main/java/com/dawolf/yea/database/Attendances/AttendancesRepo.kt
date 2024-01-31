@@ -10,6 +10,10 @@ class AttendancesRepo(private val attendancesDao: AttendancesDao) {
         attendancesDao.insertAttendances(attendances)
     }
 
+    fun getAttendancesById(id: String): LiveData<List<Attendances>>{
+        return attendancesDao.getAttendById(id)
+    }
+
     fun deleteAttendance(id: String){
         attendancesDao.deleteAttendances(id)
     }

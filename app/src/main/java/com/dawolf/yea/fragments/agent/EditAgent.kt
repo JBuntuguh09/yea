@@ -161,34 +161,34 @@ class EditAgent : Fragment() {
         binding.btnSubmit.setOnClickListener {
             ShortCut_To.hideKeyboard(requireActivity())
             if(rfid==""){
-                Toast.makeText(requireContext(), "Scan your agent card", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Scan your Beneficiary card", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
             if(binding.edtName.text.toString().isEmpty()){
-                Toast.makeText(requireContext(), "Enter agent name", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Enter Beneficiary name", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
             if(binding.edtName.text.toString().isEmpty()){
-                Toast.makeText(requireContext(), "Enter agent date of birth", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Enter Beneficiary date of birth", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
             if(binding.spinGender.selectedItemPosition==0){
-                Toast.makeText(requireContext(), "Select agent gender", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Select Beneficiary gender", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
             if(binding.edtPhone.text.toString().isEmpty()){
-                Toast.makeText(requireContext(), "Enter agent phone", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Enter Beneficiary phone", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
             if(binding.spinRegion.selectedItemPosition==0){
-                Toast.makeText(requireContext(), "Select agent region", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Select Beneficiary region", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
             if(binding.spinDistrict.selectedItemPosition==0){
-                Toast.makeText(requireContext(), "Select agent district", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Select Beneficiary district", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
             requireActivity().runOnUiThread {
@@ -385,7 +385,7 @@ class EditAgent : Fragment() {
             val jsonObject = JSONObject(res)
             var data = jsonObject.getJSONArray("data")
             val list = ArrayList<String>()
-            list.add("Select supervisor region")
+            list.add("Select Beneficiary region")
             for(a in 0 until data.length()){
                 val jObject = data.getJSONObject(a)
                 val hash = HashMap<String, String>()
@@ -438,7 +438,7 @@ class EditAgent : Fragment() {
             val jsonObject = JSONObject(res)
             val data = jsonObject.getJSONArray("data")
             val list = ArrayList<String>()
-            list.add("Select supervisor districts")
+            list.add("Select Beneficiary districts")
             for(a in 0 until data.length()){
                 val jObject = data.getJSONObject(a)
                 val hash = HashMap<String, String>()

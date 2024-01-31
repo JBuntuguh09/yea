@@ -68,7 +68,7 @@
                 <TextView
                     android:textColor="@color/gray"
                     android:id="@+id/txtSupervisor"
-                    android:text="Supervisor"
+                    android:text="Team Leader"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="2"

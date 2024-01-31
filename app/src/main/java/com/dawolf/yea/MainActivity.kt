@@ -113,6 +113,7 @@ class MainActivity : AppCompatActivity() {
                     storage.first1 = 1
                 }
                         try {
+                            println("UsererIentifier1 ${data[a].id}")
                             val intent = Intent(this, MainBase::class.java)
                             startActivity(intent)
                         }catch (e: Exception){

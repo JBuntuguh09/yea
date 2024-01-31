@@ -73,7 +73,7 @@ class Agents : Fragment() {
     private fun getButtons() {
         binding.floatAdd.setOnClickListener {
             storage.randVal = ""
-            (activity as MainBase).navTo(RegisterAgent(), "New Agent", "Staff", 1)
+            (activity as MainBase).navTo(RegisterAgent(), "New Beneficiary", "Staff", 1)
         }
 
         binding.edtSearch.setOnTouchListener(View.OnTouchListener { v, event ->
@@ -262,6 +262,6 @@ class Agents : Fragment() {
     }
     override fun onResume() {
         super.onResume()
-        (activity as MainBase).binding.txtTopic.text = "Supervisors"
+        (activity as MainBase).binding.txtTopic.text = "Beneficiaries"
     }
 }

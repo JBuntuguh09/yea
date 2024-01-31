@@ -97,6 +97,14 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <Spinner
+            android:visibility="gone"
+            android:background="@drawable/bg_white"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/baseline_15dp"
+            android:id="@+id/spinSupervisor"/>
+
+        <Spinner
 
             android:background="@drawable/bg_white"
             android:layout_width="match_parent"

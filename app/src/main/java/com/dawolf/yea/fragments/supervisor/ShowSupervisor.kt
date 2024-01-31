@@ -99,7 +99,7 @@ class ShowSupervisor : Fragment() {
         (activity as MainBase).binding.imgEdit.visibility = View.VISIBLE
         (activity as MainBase).binding.imgEdit.setOnClickListener {
             (activity as MainBase).binding.imgEdit.visibility = View.GONE
-            (activity as MainBase).navTo(EditSupervisor(), "Edit Supervisor", "Details", 1)
+            (activity as MainBase).navTo(EditSupervisor(), "Edit Team Leader", "Details", 1)
         }
     }
 

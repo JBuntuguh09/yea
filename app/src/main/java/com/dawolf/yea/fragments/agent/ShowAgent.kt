@@ -49,7 +49,7 @@ class ShowAgent : Fragment() {
 
         binding.btnViewAttendance.setOnClickListener {
             (activity as MainBase).binding.imgEdit.visibility = View.GONE
-            (activity as MainBase).navTo(AgentAttendance(), "Agent Attendance", "Details", 1)
+            (activity as MainBase).navTo(AgentAttendance(), "Beneficiary Attendance", "Details", 1)
         }
         getButtons()
         getWatchers()
@@ -135,7 +135,7 @@ class ShowAgent : Fragment() {
         (activity as MainBase).binding.imgEdit.visibility = View.VISIBLE
         (activity as MainBase).binding.imgEdit.setOnClickListener {
             (activity as MainBase).binding.imgEdit.visibility = View.GONE
-            (activity as MainBase).navTo(EditAgent(), "Edit Agent", "Details", 1)
+            (activity as MainBase).navTo(EditAgent(), "Edit Beneficiary", "Details", 1)
         }
     }
 

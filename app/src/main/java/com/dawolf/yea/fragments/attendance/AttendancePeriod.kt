@@ -75,7 +75,7 @@ class AttendancePeriod : Fragment() {
             false
         })
 
-        attendancesViewModel.liveData.observe(requireActivity()){data->
+        attendancesViewModel.getAttendanceById(storage.uSERID!!).observe(requireActivity()){data->
             try {
                 if(data.isNotEmpty()){
                     try {
@@ -85,7 +85,7 @@ class AttendancePeriod : Fragment() {
                             hash["id"] = jObject.id
                             hash["rfid_no"] = jObject.rfid_id
                             hash["name"] = jObject.agent_name
-                            hash["signout"] = ShortCut_To.convertDateFormat2(jObject.signout_date)
+                            hash["signout"] = if(jObject.signout_date!="null") ShortCut_To.convertDateFormat2(jObject.signout_date) else ""
                             hash["signout_by"] = jObject.signout_by
                             hash["region_id"] = jObject.region_id
                             hash["district_id"] = jObject.district_id
@@ -174,11 +174,11 @@ class AttendancePeriod : Fragment() {
     override fun onResume() {
         super.onResume()
         if(storage.period.equals("day")){
-            (activity as MainBase).binding.txtTopic.text = "Today's Attendance"
+            (activity as MainBase).binding.txtTopic.text = "Today's Sign In"
         }else if(storage.period.equals("week")){
-            (activity as MainBase).binding.txtTopic.text = "This week's Attendance"
+            (activity as MainBase).binding.txtTopic.text = "This week's Sign In"
         }else if(storage.period.equals("day")){
-            (activity as MainBase).binding.txtTopic.text = "This Month's Attendance"
+            (activity as MainBase).binding.txtTopic.text = "This Month's Sign In"
         }
     }
 }

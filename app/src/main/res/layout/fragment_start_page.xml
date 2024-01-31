@@ -31,7 +31,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/staff"
+                    android:text="Registration"
                     android:textSize="16sp" />
 
                 <LinearLayout
@@ -130,7 +130,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Attendance"
+                    android:text="Sign Ins"
                     android:textSize="16sp" />
 
                 <LinearLayout
@@ -250,7 +250,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="@dimen/baseline_10dp"
-                android:text="Attendance Line Chart"
+                android:text="Sign In Line Chart"
                 android:textAlignment="center"
                 android:textSize="18sp"
                 android:textStyle="bold"
@@ -413,7 +413,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="@dimen/baseline_5dp"
-                            android:text="@string/attendance"
+                            android:text="Sign Ins"
                             android:textAlignment="center"
                             android:textColor="@color/white"
                             android:textStyle="bold" />
