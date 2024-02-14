@@ -20,7 +20,7 @@ interface AgentDao {
     fun getAgent(id: String): LiveData<List<Agent>>
 
     @Query("delete from agent where userId = :id")
-    fun deleteAgent(id: String)
+    fun deleteAgent(id: String) : Int
 
     @Query("delete from agent")
     fun deleteAll()

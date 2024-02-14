@@ -90,6 +90,9 @@ class Agents : Fragment() {
             }
             false
         })
+        ShortCut_To.runSwipe(binding.swipe){
+            getAgents()
+        }
 
         agentViewModel.getAgent(storage.uSERID!!).observe(requireActivity()){data->
             try {
@@ -206,14 +209,14 @@ class Agents : Fragment() {
                 hash["district_id"] = jObject.optString("district_id")
                 hash["latitude"] = jObject.optString("latitude")
                 hash["longitude"] = jObject.optString("longitude")
-                hash["supervisor_id"] = jObject.optString("supervisor_id")
+                hash["supervisor_id"] = jObject.getJSONObject("team_leader").getJSONObject("supervisor").optString("supervisor_id")
                 hash["date"] = ShortCut_To.convertDateFormat(jObject.optString("created_at"))
 
                 hash["region_name"] = jObject.getJSONObject("region").optString("name")
                 hash["district_name"] = jObject.getJSONObject("district").optString("name")
-                hash["sName"] = jObject.getJSONObject("supervisor").optString("name")
-                hash["sEmail"] = jObject.getJSONObject("supervisor").optString("email")
-                hash["sNumber"] = jObject.getJSONObject("supervisor").optString("phone")
+                hash["sName"] = jObject.getJSONObject("team_leader").getJSONObject("supervisor").optString("name")
+                hash["slEmail"] = jObject.getJSONObject("team_leader").getJSONObject("supervisor").optString("emp_date")
+                hash["slNumber"] = jObject.getJSONObject("team_leader").getJSONObject("supervisor").optString("phone")
 
 //                arrayList.add(hash)
                 val agent = Agent(jObject.getString("rfid_no"), storage.uSERID!!,jObject.getString("id"), jObject.getString("agent_id"),

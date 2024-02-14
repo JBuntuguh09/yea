@@ -21,8 +21,9 @@ import java.util.*
 
 class Constant {
     companion object{
-
-        const val URL = "http://13.39.163.41/yea-project/"
+        //13.39.163.41
+//51.44.21.140
+        const val URL = "http://51.44.21.140/yea-project/"
         const val URL_BACKUP ="https://api.paystack.co"
 
         const val username = "lonewolf.09@hotmail.com"

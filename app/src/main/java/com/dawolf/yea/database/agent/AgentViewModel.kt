@@ -40,10 +40,11 @@ class AgentViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun deleteAgent(rfid: String){
-        viewModelScope.launch(Dispatchers.IO) {
-            repo.deleteAgent(rfid)
-        }
+    fun deleteAgent(rfid: String): Boolean{
+        val num = viewModelScope.launch(Dispatchers.IO) {
+             repo.deleteAgent(rfid)
+        }.isCompleted
+        return num
     }
 
     fun updateAgent(vName:String, vPhone : String, vDob: String, vGender:String, vAddress:String,vDistrictName: String, vDistrict: String, vRegionName: String, vRegion: String,

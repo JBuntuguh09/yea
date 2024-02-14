@@ -10,8 +10,8 @@ class StaffPageAdapter(fm: FragmentActivity): FragmentStateAdapter(fm) {
 
     fun getItemName(position: Int):String{
         return when (position){
-            0->"Agents"
-            1->"Supervisors"
+            0->"Beneficiaries"
+            1->"Team Leaders"
 
             else->""
         }

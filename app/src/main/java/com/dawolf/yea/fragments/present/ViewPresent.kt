@@ -1,4 +1,4 @@
-package com.dawolf.yea.fragments.attendance
+package com.dawolf.yea.fragments.present
 
 import android.content.Intent
 import android.os.Bundle
@@ -14,13 +14,10 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.dawolf.yea.MainBase
 import com.dawolf.yea.R
 import com.dawolf.yea.RFIDActivity2
-import com.dawolf.yea.Startpage
-import com.dawolf.yea.adapters.RecyclerViewAgents
 import com.dawolf.yea.adapters.RecyclerViewAttendance
-import com.dawolf.yea.adapters.RecyclerViewSupervisors
 import com.dawolf.yea.database.Attendances.Attendances
 import com.dawolf.yea.database.Attendances.AttendancesViewModel
-import com.dawolf.yea.databinding.FragmentViewAttendanceBinding
+import com.dawolf.yea.databinding.FragmentViewPresentBinding
 import com.dawolf.yea.resources.Constant
 import com.dawolf.yea.resources.ShortCut_To
 import com.dawolf.yea.resources.Storage
@@ -39,17 +36,17 @@ private const val ARG_PARAM2 = "param2"
 
 /**
  * A simple [Fragment] subclass.
- * Use the [ViewAttendance.newInstance] factory method to
+ * Use the [ViewPresent.newInstance] factory method to
  * create an instance of this fragment.
  */
-class ViewAttendance : Fragment() {
+class ViewPresent : Fragment() {
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
-    private lateinit var binding: FragmentViewAttendanceBinding
+    private lateinit var binding: FragmentViewPresentBinding
     private lateinit var storage: Storage
-    private var arrayList = ArrayList<HashMap<String, String>>()
     private lateinit var attendancesViewModel: AttendancesViewModel
+    private val arrayList = ArrayList<HashMap<String, String>>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -64,8 +61,8 @@ class ViewAttendance : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        val view = inflater.inflate(R.layout.fragment_view_attendance, container, false)
-        binding = FragmentViewAttendanceBinding.bind(view)
+        val view = inflater.inflate(R.layout.fragment_view_present, container, false)
+        binding = FragmentViewPresentBinding.bind(view)
         storage = Storage(requireContext())
         attendancesViewModel = ViewModelProvider(requireActivity(), defaultViewModelProviderFactory)[AttendancesViewModel::class.java]
 
@@ -106,7 +103,9 @@ class ViewAttendance : Fragment() {
 
 
 
-                        arrayList.add(hash)
+                        if (jObject.signout_date!="null" && jObject.created_at!="null") {
+                            arrayList.add(hash)
+                        }
 
 
                     }
@@ -129,6 +128,13 @@ class ViewAttendance : Fragment() {
         binding.floatAdd.setOnClickListener {
             //(activity as MainBase).navTo(NewAttendance(), "New Attendance", "View Attendance", 1)
             storage.project = "Attendance"
+            val intent = Intent(requireContext(), RFIDActivity2::class.java)
+            startActivity(intent)
+        }
+
+        binding.floatingActionButton2.setOnClickListener {
+            //(activity as MainBase).navTo(NewAttendance(), "New Attendance", "View Attendance", 1)
+            storage.project = "Signout"
             val intent = Intent(requireContext(), RFIDActivity2::class.java)
             startActivity(intent)
         }
@@ -226,7 +232,7 @@ class ViewAttendance : Fragment() {
 //
                 hash["agent_id"] = jObject.getJSONObject("agent").optString("id")
 
-               // arrayList.add(hash)
+                // arrayList.add(hash)
                 val attendances = Attendances(jObject.getString("id"), storage.uSERID!!,jObject.getString("rfid_no"),
                     jObject.getJSONObject("region").getString("name"), jObject.getString("region_id"),
                     jObject.getJSONObject("district").getString("name"), jObject.getString("district_id"),
@@ -245,6 +251,11 @@ class ViewAttendance : Fragment() {
         }
     }
 
+    override fun onResume() {
+        (activity as MainBase).binding.txtTopic.text = "View Sign Ins"
+        super.onResume()
+    }
+
     companion object {
         /**
          * Use this factory method to create a new instance of
@@ -252,21 +263,16 @@ class ViewAttendance : Fragment() {
          *
          * @param param1 Parameter 1.
          * @param param2 Parameter 2.
-         * @return A new instance of fragment ViewAttendance.
+         * @return A new instance of fragment ViewPresent.
          */
         // TODO: Rename and change types and number of parameters
         @JvmStatic
         fun newInstance(param1: String, param2: String) =
-            ViewAttendance().apply {
+            ViewPresent().apply {
                 arguments = Bundle().apply {
                     putString(ARG_PARAM1, param1)
                     putString(ARG_PARAM2, param2)
                 }
             }
-    }
-
-    override fun onResume() {
-        (activity as MainBase).binding.txtTopic.text = "View Sign Ins"
-        super.onResume()
     }
 }

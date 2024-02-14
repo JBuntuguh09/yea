@@ -232,7 +232,7 @@ public class RFIDActivity2 extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         if(Objects.equals(storage.getProject(), "Attendance")){
-            binding.txtTopic.setText("ATTENDANCE: Scan your card");
+            binding.txtTopic.setText("SIGN IN: Scan your card");
         }else if(Objects.equals(storage.getProject(), "Signout")){
             binding.txtTopic.setText("SIGNOUT : Scan your card");
         }else if(Objects.equals(storage.getProject(), "Scan your card")){

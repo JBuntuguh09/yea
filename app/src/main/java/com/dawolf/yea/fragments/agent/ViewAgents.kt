@@ -85,6 +85,10 @@ class ViewAgents : Fragment() {
             false
         })
 
+        ShortCut_To.runSwipe(binding.swipe){
+            getAgents()
+        }
+
         binding.floatAdd.setOnClickListener {
             storage.randVal = ""
             (activity as MainBase).navTo(RegisterAgent(), "New Beneficiary", "Staff", 1)
@@ -92,8 +96,9 @@ class ViewAgents : Fragment() {
 
         agentViewModel.getAgent(storage.uSERID!!).observe(requireActivity()){data->
             try {
+                arrayList.clear()
                 if(data.isNotEmpty()){
-                    arrayList.clear()
+
                     for(a in data.indices){
                         val jObject = data[a]
 
@@ -127,12 +132,13 @@ class ViewAgents : Fragment() {
                     }
 
                     ShortCut_To.sortDataInvert(arrayList, "sort")
-                    val recyclerViewAgents = RecyclerViewAgents(requireContext(), arrayList)
-                    val linearLayoutManager = LinearLayoutManager(requireContext())
-                    binding.recycler.layoutManager = linearLayoutManager
-                    binding.recycler.itemAnimator = DefaultItemAnimator()
-                    binding.recycler.adapter = recyclerViewAgents
+
                 }
+                val recyclerViewAgents = RecyclerViewAgents(requireContext(), arrayList)
+                val linearLayoutManager = LinearLayoutManager(requireContext())
+                binding.recycler.layoutManager = linearLayoutManager
+                binding.recycler.itemAnimator = DefaultItemAnimator()
+                binding.recycler.adapter = recyclerViewAgents
             }catch (_: Exception){
 
             }
@@ -190,45 +196,66 @@ class ViewAgents : Fragment() {
             val data = jsonObject.getJSONArray("data")
             arrayList.clear()
             agentViewModel.deleteAgent(storage.uSERID!!)
-            for(a in 0 until data.length()){
-                val jObject = data.getJSONObject(a)
-                val hash = HashMap<String, String>()
+                println("is running")
+                for(a in 0 until data.length()) {
+                    val jObject = data.getJSONObject(a)
+                    val hash = HashMap<String, String>()
 
-                hash["id"] = jObject.optString("id")
-                hash["rfid_no"] = jObject.optString("rfid_no")
-                hash["agent_id"] = jObject.optString("agent_id")
-                hash["name"] = jObject.optString("name")
-                hash["status"] = jObject.optString("status")
-                hash["dob"] = jObject.optString("dob")
-                hash["gender"] = jObject.optString("gender")
-                hash["phone"] = jObject.optString("phone")
-                hash["address"] = jObject.optString("address")
-                hash["region_id"] = jObject.optString("region_id")
-                hash["district_id"] = jObject.optString("district_id")
-                hash["latitude"] = jObject.optString("latitude")
-                hash["longitude"] = jObject.optString("longitude")
-                hash["supervisor_id"] = jObject.optString("supervisor_id")
-                hash["date"] = ShortCut_To.convertDateFormat(jObject.optString("created_at"))
+                    hash["id"] = jObject.optString("id")
+                    hash["rfid_no"] = jObject.optString("rfid_no")
+                    hash["agent_id"] = jObject.optString("agent_id")
+                    hash["name"] = jObject.optString("name")
+                    hash["status"] = jObject.optString("status")
+                    hash["dob"] = jObject.optString("dob")
+                    hash["gender"] = jObject.optString("gender")
+                    hash["phone"] = jObject.optString("phone")
+                    hash["address"] = jObject.optString("address")
+                    hash["region_id"] = jObject.optString("region_id")
+                    hash["district_id"] = jObject.optString("district_id")
+                    hash["latitude"] = jObject.optString("latitude")
+                    hash["longitude"] = jObject.optString("longitude")
+                    hash["supervisor_id"] = jObject.getJSONObject("team_leader").getJSONObject("supervisor").optString("supervisor_id")
+                    hash["date"] = ShortCut_To.convertDateFormat(jObject.optString("created_at"))
 
-                hash["region_name"] = jObject.getJSONObject("region").optString("name")
-                hash["district_name"] = jObject.getJSONObject("district").optString("name")
-                hash["sName"] = jObject.getJSONObject("supervisor").optString("name")
-                hash["sEmail"] = jObject.getJSONObject("supervisor").optString("email")
-                hash["sNumber"] = jObject.getJSONObject("supervisor").optString("phone")
+                    hash["region_name"] = jObject.getJSONObject("region").optString("name")
+                    hash["district_name"] = jObject.getJSONObject("district").optString("name")
+//                    hash["sName"] = jObject.getJSONObject("supervisor").optString("name")
+//                    hash["sEmail"] = jObject.getJSONObject("supervisor").optString("email")
+//                    hash["sNumber"] = jObject.getJSONObject("supervisor").optString("phone")
+
+                    hash["sName"] = jObject.getJSONObject("team_leader").getJSONObject("supervisor").optString("name")
+                    hash["slEmail"] = jObject.getJSONObject("team_leader").getJSONObject("supervisor").optString("email")
+                    hash["slNumber"] = jObject.getJSONObject("team_leader").getJSONObject("supervisor").optString("phone")
 
 
-                val agent = Agent(jObject.getString("rfid_no"), storage.uSERID!!, jObject.getString("id"), jObject.getString("agent_id"),
-                    jObject.getString("name"), jObject.getString("dob"), jObject.getString("phone"), jObject.getString("address"),
-                    jObject.getJSONObject("region").getString("name"), jObject.getString("region_id")
-                    , jObject.getJSONObject("district").getString("name"), jObject.getString("district_id"),
-                    jObject.getString("rfid_no"), jObject.getString("longitude"),
-                    jObject.getJSONObject("supervisor").getString("name") ,jObject.getString("supervisor_id"),
-                    jObject.getJSONObject("supervisor").getString("email"), jObject.getJSONObject("supervisor").getString("phone"),
-                    jObject.getString("status"), jObject.getString("created_at"), jObject.getString("updated_at"), jObject.getString("gender"))
+                    val agent = Agent(
+                        jObject.getString("rfid_no"),
+                        storage.uSERID!!,
+                        jObject.getString("id"),
+                        jObject.getString("agent_id"),
+                        jObject.getString("name"),
+                        jObject.getString("dob"),
+                        jObject.getString("phone"),
+                        jObject.getString("address"),
+                        jObject.getJSONObject("region").getString("name"),
+                        jObject.getString("region_id"),
+                        jObject.getJSONObject("district").getString("name"),
+                        jObject.getString("district_id"),
+                        jObject.getString("rfid_no"),
+                        jObject.getString("longitude"),
+                        jObject.getJSONObject("team_leader").getJSONObject("supervisor").getString("name"),
+                        jObject.getJSONObject("team_leader").getJSONObject("supervisor").getString("supervisor_id"),
+                        jObject.getJSONObject("team_leader").getJSONObject("supervisor").getString("emp_date"),
+                        jObject.getJSONObject("team_leader").getJSONObject("supervisor").getString("phone"),
+                        jObject.getString("status"),
+                        jObject.getString("created_at"),
+                        jObject.getString("updated_at"),
+                        jObject.getString("gender")
+                    )
 
-                agentViewModel.insert(agent)
+                    agentViewModel.insert(agent)
 
-            }
+                }
 
 
 

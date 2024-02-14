@@ -6,75 +6,124 @@
     android:layout_height="match_parent"
     tools:context=".fragments.supervisor.RegisterSupervisor">
 
-    <ScrollView
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <LinearLayout
-            android:padding="@dimen/baseline_10dp"
+        app:layout_constraintTop_toTopOf="parent"
+        android:id="@+id/swipe">
+        <ScrollView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
-
-            <com.google.android.material.textfield.TextInputLayout
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+            <LinearLayout
+                android:padding="@dimen/baseline_10dp"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/edtName"
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/edtName"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="textPersonName"
+                        android:hint="Enter team leader name" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_marginTop="@dimen/baseline_10dp"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/edtPhone"
+                        android:inputType="phone"
+                        android:hint="Enter team leader's MOMO number" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <Spinner
+
+                    android:background="@drawable/bg_white"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="textPersonName"
-                    android:hint="Enter supervisor name" />
-            </com.google.android.material.textfield.TextInputLayout>
+                    android:layout_marginTop="@dimen/baseline_15dp"
+                    android:id="@+id/spinRegion"/>
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:layout_marginTop="@dimen/baseline_10dp"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
-                <com.google.android.material.textfield.TextInputEditText
+                <Spinner
+                    android:background="@drawable/bg_white"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:id="@+id/edtPhone"
-                    android:inputType="phone"
-                    android:hint="Enter supervisor phone number" />
-            </com.google.android.material.textfield.TextInputLayout>
+                    android:layout_marginTop="@dimen/baseline_15dp"
+                    android:id="@+id/spinDistrict"/>
 
-            <Spinner
+                <Spinner
+                    android:visibility="gone"
+                    android:background="@drawable/bg_white"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/baseline_15dp"
+                    android:id="@+id/spinComm"/>
 
-                android:background="@drawable/bg_white"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/baseline_15dp"
-                android:id="@+id/spinRegion"/>
+                <Spinner
+                    android:visibility="gone"
+                    android:background="@drawable/bg_white"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/baseline_15dp"
+                    android:id="@+id/spinArea"/>
 
-            <Spinner
-                android:background="@drawable/bg_white"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/baseline_15dp"
-                android:id="@+id/spinDistrict"/>
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginTop="@dimen/baseline_10dp">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/edtEmpDate"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:drawableEnd="@drawable/baseline_date_range_24"
+                        android:hint="Enter beneficiary employment date"
+                        android:inputType="date" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <TextView
+                    android:visibility="gone"
+                    android:id="@+id/txtYeatsWorked"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/baseline_10dp"
+                    android:background="@drawable/bg_white"
+                    android:padding="@dimen/baseline_10dp"
+                    android:paddingStart="@dimen/baseline_15dp"
+                    android:text="Years Worked"
+                    android:textSize="@dimen/baseline_16dp" />
 
 
-            <Button
-                android:id="@+id/btnSubmit"
-                android:textStyle="bold"
-                android:backgroundTint="@color/primary"
-                android:layout_marginTop="@dimen/baseline_30dp"
-                android:layout_gravity="center"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/submit"/>
+                <Button
+                    android:id="@+id/btnSubmit"
+                    android:textStyle="bold"
+                    android:backgroundTint="@color/primary"
+                    android:layout_marginTop="@dimen/baseline_30dp"
+                    android:layout_gravity="center"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/submit"/>
 
-        </LinearLayout>
-    </ScrollView>
+            </LinearLayout>
+        </ScrollView>
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
     <ProgressBar
         android:visibility="gone"

@@ -8,6 +8,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.dawolf.yea.MainBase
 import com.dawolf.yea.R
@@ -26,6 +29,8 @@ import com.dawolf.yea.fragments.agent.RegisterAgent
 import com.dawolf.yea.fragments.attendance.AttendancePeriod
 import com.dawolf.yea.fragments.attendance.NewAttendance
 import com.dawolf.yea.fragments.attendance.ViewAttendance
+import com.dawolf.yea.fragments.present.ViewPresent
+import com.dawolf.yea.fragments.send.ViewSend
 import com.dawolf.yea.fragments.signout.AttendanceSignout
 import com.dawolf.yea.fragments.signout.Signout
 import com.dawolf.yea.fragments.supervisor.RegisterSupervisor
@@ -101,6 +106,12 @@ class StartPage : Fragment() {
         getAttendance()
         getAgents()
         getSupervisors()
+        ShortCut_To.runSwipe(binding.swipe){
+            binding.progressBar.visibility = View.VISIBLE
+            getAttendance()
+            getAgents()
+            getSupervisors()
+        }
 
 
 
@@ -108,7 +119,7 @@ class StartPage : Fragment() {
     }
 
     private fun getOffline() {
-        agentViewModel.getAgent(storage.uSERID!!).observe(viewLifecycleOwner){data->
+        agentViewModel.getAgent(storage.uSERID!!).observeOnce(viewLifecycleOwner){data->
             var num= 0
             if (data.isNotEmpty()){
                 for(a in data.indices) {
@@ -122,7 +133,8 @@ class StartPage : Fragment() {
             }
         }
 
-        supervisorViewModel.getSuper(storage.uSERID!!).observe(viewLifecycleOwner){data->
+
+        supervisorViewModel.getSuper(storage.uSERID!!).observeOnce(viewLifecycleOwner){data->
             var num= 0
             if (data.isNotEmpty()){
                 for(a in data.indices) {
@@ -135,9 +147,11 @@ class StartPage : Fragment() {
                 binding.txtSuper.text = num.toString()
 
             }
+
+
         }
 
-        attendancesViewModel.getAttendanceById(storage.uSERID!!).observe(viewLifecycleOwner){data->
+        attendancesViewModel.getAttendanceById(storage.uSERID!!).observeOnce(viewLifecycleOwner){data->
             var day = 0
             var week = 0
             var month = 0
@@ -177,8 +191,10 @@ class StartPage : Fragment() {
                     counts.clear()
                     dateOccurrences.forEach { (date, count) ->
                         // println("$date: $count occurrences")
-                        dates.add(date)
-                        counts.add(count.toFloat())
+                        if(ShortCut_To.checkifIsSameMonthYear(date)) {
+                            dates.add(date)
+                            counts.add(count.toFloat())
+                        }
                     }
 
                     showLine()
@@ -189,6 +205,30 @@ class StartPage : Fragment() {
                 }catch (e: Exception){
                     e.printStackTrace()
                 }
+
+            }
+
+        }
+
+        val act = (activity as MainBase)
+        act.noAttend.observe(requireActivity()){data->
+            if(data=="Yes"){
+                binding.txtDay.text = "0"
+                binding.txtWeek.text = "0"
+                binding.txtMonth.text = "0"
+            }
+        }
+
+        act.noSuper.observe(requireActivity()){data->
+            if(data=="Yes"){
+                binding.txtSuper.text = "0"
+
+            }
+        }
+
+        act.noAgent.observe(requireActivity()){data->
+            if(data=="Yes"){
+                binding.txtAgent.text = "0"
 
             }
         }
@@ -214,6 +254,11 @@ class StartPage : Fragment() {
         binding.cardSignout.setOnClickListener {
 
             (activity as MainBase).navTo(Signout(), "Sign Out", "Start", 1)
+        }
+
+        binding.cardPresent.setOnClickListener {
+
+            (activity as MainBase).navTo(ViewSend(), "Attendance", "Start", 1)
         }
 
         binding.cardDaily.setOnClickListener {
@@ -306,13 +351,15 @@ class StartPage : Fragment() {
         try {
             var num = 0
             val jsonObject = JSONObject(res)
-            val data = jsonObject.getJSONArray("data")
             agentViewModel.deleteAgent(storage.uSERID!!)
+            val data = jsonObject.getJSONArray("data")
+
             for(a in 0 until data.length()){
                 val jObject = data.getJSONObject(a)
                 if (jObject.getString("status")=="Active"){
                     num +=1
                 }
+
                 val agent = Agent(jObject.getString("rfid_no"), storage.uSERID!!,jObject.getString("id"), jObject.getString("agent_id"),
                     jObject.getString("name"), jObject.getString("dob"), jObject.getString("phone"), jObject.getString("address"),
                     jObject.getJSONObject("region").getString("name"), jObject.getString("region_id")
@@ -360,8 +407,9 @@ class StartPage : Fragment() {
         try {
             var num = 0
             val jsonObject = JSONObject(res)
-            val data = jsonObject.getJSONArray("data")
             supervisorViewModel.deleteSuper(storage.uSERID!!)
+            val data = jsonObject.getJSONArray("data")
+
             for(a in 0 until data.length()){
                 val jObject = data.getJSONObject(a)
                 if (jObject.getString("status")=="Active"){
@@ -415,8 +463,9 @@ class StartPage : Fragment() {
             var week = 0
             var month = 0
             val jsonObject = JSONObject(res)
-            val data = jsonObject.getJSONArray("data")
             attendancesViewModel.deleteBid(storage.uSERID!!)
+            val data = jsonObject.getJSONArray("data")
+
             for(a in 0 until data.length()){
                 val jObject = data.getJSONObject(a)
 
@@ -444,9 +493,16 @@ class StartPage : Fragment() {
 
             }
 
+            binding.txtDay.text = day.toString()
+            binding.txtWeek.text = week.toString()
+            binding.txtMonth.text = month.toString()
+
 
 
         }catch (e: Exception){
+            binding.txtDay.text = "0"
+            binding.txtWeek.text = "0"
+            binding.txtMonth.text = "0"
             e.printStackTrace()
         }
     }
@@ -651,5 +707,14 @@ class StartPage : Fragment() {
                     putString(ARG_PARAM2, param2)
                 }
             }
+    }
+
+    fun <T> LiveData<T>.observeOnce(owner: LifecycleOwner, observer: Observer<T>) {
+        observe(owner, object : Observer<T> {
+            override fun onChanged(t: T) {
+                observer.onChanged(t)
+                removeObserver(this)
+            }
+        })
     }
 }

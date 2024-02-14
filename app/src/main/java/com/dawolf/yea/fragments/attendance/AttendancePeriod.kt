@@ -75,6 +75,10 @@ class AttendancePeriod : Fragment() {
             false
         })
 
+        ShortCut_To.runSwipe(binding.swipe){
+            getAttendance()
+        }
+
         attendancesViewModel.getAttendanceById(storage.uSERID!!).observe(requireActivity()){data->
             try {
                 if(data.isNotEmpty()){

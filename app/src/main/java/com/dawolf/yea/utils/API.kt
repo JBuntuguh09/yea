@@ -6,14 +6,17 @@ import android.provider.OpenableColumns
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.dawolf.yea.resources.ShortCut_To
 import com.dawolf.yea.resources.Storage
+import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import java.net.HttpURLConnection
 import java.net.URL
+
 
 class API {
 //
@@ -118,11 +121,14 @@ class API {
 
         try {
             val client = OkHttpClient()
-
+            val mediaType = "text/plain".toMediaTypeOrNull()
+            val body = "".toRequestBody(mediaType)
 
             val request = Request.Builder()
                 .url(URL)
+                .addHeader("Accept", "application/json")
                 .addHeader("Authorization", storage.tokenId!!)
+
                 .build()
 
             client.newCall(request).execute().use { response ->
@@ -211,8 +217,9 @@ class API {
             val requestBody: RequestBody = builder.build()
             val request = Request.Builder()
                 .url(URL)
-                .post(requestBody)
-
+                .method("POST", requestBody)
+              //  .post(requestBody)
+                .addHeader("Accept", "application/json")
                 .addHeader("Authorization", storage.tokenId!!)
 
                 .build()

@@ -137,6 +137,9 @@ class ViewSupervisors : Fragment() {
         binding.floatAdd.setOnClickListener {
             (activity as MainBase).navTo(RegisterSupervisor(), "New Supervisor", "Staff", 1)
         }
+        ShortCut_To.runSwipe(binding.swipe){
+            getSupervisors()
+        }
 
         binding.edtSearch.setOnTouchListener(View.OnTouchListener { v, event ->
             val DRAWABLE_LEFT = 0

@@ -372,11 +372,27 @@ class Storage(context: Context) {
             editor.commit()
         }
 
-    var projPrice : String?
-        get() = pref.getString(PROJECTPRICE, "")
+    var projSupervisors : String?
+        get() = pref.getString(SUPERVISORS, "")
         set(value) {
             val editor = editor
-            editor.putString(PROJECTPRICE, value)
+            editor.putString(SUPERVISORS, value)
+            editor.commit()
+        }
+
+    var projCommunities : String?
+        get() = pref.getString(COMMUNITIES, "")
+        set(value) {
+            val editor = editor
+            editor.putString(COMMUNITIES, value)
+            editor.commit()
+        }
+
+    var projAreas : String?
+        get() = pref.getString(AREAS, "")
+        set(value) {
+            val editor = editor
+            editor.putString(AREAS, value)
             editor.commit()
         }
 
@@ -652,6 +668,10 @@ class Storage(context: Context) {
         private const val RFID = "user refid tag"
         private const val PERIOD = "selecrted period"
         private const val PHONE = "phone number user"
+        private const val SUPERVISORS = "the supervisors"
+        private const val COMMUNITIES = "the communities"
+        private const val AREAS = "the areas"
+
 
 
 

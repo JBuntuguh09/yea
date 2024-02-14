@@ -6,132 +6,181 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".fragments.agent.RegisterAgent">
 
-    <ScrollView
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        android:id="@+id/swipe"
         app:layout_constraintTop_toTopOf="parent">
-
-    <LinearLayout
-        android:padding="@dimen/baseline_10dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-
-        <Button
+        <ScrollView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/btnScan"
-            android:textStyle="bold"
-            android:backgroundTint="@color/primary"
-            android:drawableEnd="@drawable/baseline_autorenew_24"
-            android:text="Scan Code"/>
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:layout_marginTop="@dimen/baseline_10dp"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/edtName"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="textPersonName"
-                android:hint="Enter agent name" />
-        </com.google.android.material.textfield.TextInputLayout>
+                android:orientation="vertical"
+                android:padding="@dimen/baseline_10dp">
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:layout_marginTop="@dimen/baseline_10dp"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/edtDob"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="date"
-                android:drawableEnd="@drawable/baseline_date_range_24"
-                android:drawableTint="@color/black"
-                android:hint="Enter agent date of birth" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <Spinner
-            android:background="@drawable/bg_white"
-            android:layout_marginTop="@dimen/baseline_15dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/spinGender"/>
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:layout_marginTop="@dimen/baseline_10dp"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/edtPhone"
-                android:inputType="phone"
-                android:hint="Enter agent phone number" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:layout_marginTop="@dimen/baseline_10dp"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/edtAddress"
-                android:inputType="text"
-                android:gravity="start"
-                android:minHeight="@dimen/baseline_100dp"
-                android:hint="Enter agent address" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <Spinner
-            android:visibility="gone"
-            android:background="@drawable/bg_white"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/baseline_15dp"
-            android:id="@+id/spinSupervisor"/>
-
-        <Spinner
-
-            android:background="@drawable/bg_white"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/baseline_15dp"
-            android:id="@+id/spinRegion"/>
-
-        <Spinner
-            android:background="@drawable/bg_white"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/baseline_15dp"
-            android:id="@+id/spinDistrict"/>
+                <Button
+                    android:id="@+id/btnScan"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:backgroundTint="@color/primary"
+                    android:drawableEnd="@drawable/baseline_autorenew_24"
+                    android:text="Scan Code"
+                    android:textStyle="bold" />
 
 
-        <Button
-            android:id="@+id/btnSubmit"
-            android:textStyle="bold"
-            android:backgroundTint="@color/primary"
-            android:layout_marginTop="@dimen/baseline_30dp"
-            android:layout_gravity="center"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/submit"/>
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginTop="@dimen/baseline_10dp">
 
-    </LinearLayout>
-    </ScrollView>
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/edtName"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Enter beneficiary name"
+                        android:inputType="textPersonName" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginTop="@dimen/baseline_10dp">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/edtDob"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:drawableEnd="@drawable/baseline_date_range_24"
+                        android:hint="Enter beneficiary date of birth"
+                        android:inputType="date" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <Spinner
+                    android:id="@+id/spinGender"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/baseline_15dp"
+                    android:background="@drawable/bg_white" />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginTop="@dimen/baseline_10dp">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/edtPhone"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Enter beneficiary MOMO number"
+                        android:inputType="phone" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginTop="@dimen/baseline_10dp">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/edtAddress"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="start"
+                        android:hint="Enter beneficiary address"
+                        android:inputType="text"
+                        android:minHeight="@dimen/baseline_100dp" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <Spinner
+                    android:id="@+id/spinSupervisor"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/baseline_15dp"
+                    android:background="@drawable/bg_white"
+                    android:visibility="gone" />
+
+                <Spinner
+
+                    android:id="@+id/spinRegion"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/baseline_15dp"
+                    android:background="@drawable/bg_white" />
+
+                <Spinner
+                    android:id="@+id/spinDistrict"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/baseline_15dp"
+                    android:background="@drawable/bg_white" />
+
+                <Spinner
+                    android:id="@+id/spinComm"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/baseline_15dp"
+                    android:background="@drawable/bg_white"
+                    android:visibility="gone" />
+
+                <Spinner
+                    android:id="@+id/spinArea"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/baseline_15dp"
+                    android:background="@drawable/bg_white"
+                    android:visibility="gone" />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginTop="@dimen/baseline_10dp">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/edtEmpDate"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:drawableEnd="@drawable/baseline_date_range_24"
+                        android:hint="Enter beneficiary employment date"
+                        android:inputType="date" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <TextView
+                    android:visibility="gone"
+                    android:id="@+id/txtYeatsWorked"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/baseline_10dp"
+                    android:background="@drawable/bg_white"
+                    android:padding="@dimen/baseline_10dp"
+                    android:paddingStart="@dimen/baseline_15dp"
+                    android:text="Years Worked"
+                    android:textSize="@dimen/baseline_16dp" />
+
+
+                <Button
+                    android:id="@+id/btnSubmit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="@dimen/baseline_30dp"
+                    android:backgroundTint="@color/primary"
+                    android:text="@string/submit"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+        </ScrollView>
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
     <ProgressBar
         android:visibility="gone"

@@ -3,6 +3,7 @@ package com.dawolf.yea.fragments.supervisor
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
@@ -47,6 +48,15 @@ class RegisterSupervisor : Fragment() {
     private var arrayListDistrict = ArrayList<HashMap<String, String>>()
     private lateinit var supervisorViewModel: SupervisorViewModel
 
+    private var distId = ""
+    private var areaId = ""
+    private var superId = ""
+    private var commId = ""
+    private var arreaId = ""
+
+    var resCom = ""
+    var resArea = ""
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -68,10 +78,161 @@ class RegisterSupervisor : Fragment() {
 
 
         getButtons()
+        getComms()
         return view
     }
 
+    private fun getComms() {
+        (activity as MainBase).communites.observe(requireActivity()) { data ->
+            resCom = data
+            filterComm()
+        }
+        (activity as MainBase).areas.observe(requireActivity()) { data ->
+            resArea = data
+            filterArea()
+        }
+
+        ShortCut_To.runSwipe(binding.swipe){
+            val act = (activity as MainBase)
+            binding.progressBar.visibility = View.VISIBLE
+            if(arrayListRegion.size==0){
+                act.getRegion()
+            }
+            if(arrayListDistrict.size==0){
+                act.getDistrict()
+            }
+
+            if(resCom == ""){
+                act.getCommunity()
+            }
+            if(resArea == ""){
+                act.getArea()
+            }
+
+            binding.progressBar.visibility = View.GONE
+
+        }
+    }
+
+    private fun filterComm(){
+        try {
+            println("herrooo $resCom")
+            val list = ArrayList<String>()
+            val arrayListComm = ArrayList<HashMap<String, String>>()
+            val jsonObject = JSONObject(resCom)
+            val jdata = jsonObject.getJSONArray("data")
+            list.add("Select community")
+
+            for(a in 0 until jdata.length()){
+                val jObject = jdata.getJSONObject(a)
+                val hash = HashMap<String, String>()
+
+                hash["id"] = jObject.optString("id")
+                hash["district_id"] = jObject.optString("district_id")
+                hash["name"] = jObject.optString("name")
+                hash["district"] = jObject.optString("district")
+
+                if(distId == hash["district_id"]){
+                    list.add(hash["name"]!!)
+                    arrayListComm.add(hash)
+                }
+
+
+            }
+            val arrayAdapter = ArrayAdapter(requireContext(), R.layout.layout_spinner_list, list)
+            arrayAdapter.setDropDownViewResource(R.layout.layout_dropdown)
+            binding.spinComm.adapter = arrayAdapter
+            binding.spinComm.visibility = View.VISIBLE
+
+            binding.spinComm.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
+                override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
+                    if(p2==0){
+                        commId = ""
+                        binding.spinArea.visibility= View.GONE
+                    }else{
+                        commId = arrayListComm[p2-1]["id"]!!
+                        filterArea()
+                        binding.spinArea.visibility= View.VISIBLE
+                    }
+                }
+
+                override fun onNothingSelected(p0: AdapterView<*>?) {
+
+                }
+
+            }
+        }catch (e: Exception){
+
+        }
+
+    }
+
+    private fun filterArea(){
+        try {
+            val list = ArrayList<String>()
+            val arrayListArea = ArrayList<HashMap<String, String>>()
+            val jsonObject = JSONObject(resArea)
+            val jdata = jsonObject.getJSONArray("data")
+            list.add("Select Deployment area")
+
+
+            for(a in 0 until jdata.length()){
+                val jObject = jdata.getJSONObject(a)
+                val hash = HashMap<String, String>()
+
+                hash["id"] = jObject.optString("id")
+                hash["district_id"] = jObject.optString("district_id")
+                hash["name"] = jObject.optString("deployment_area")
+                //hash["community_id"] = jObject.optString("community_id")
+
+                if(distId == hash["district_id"] ){
+                    list.add(hash["name"]!!)
+                    arrayListArea.add(hash)
+                }
+
+
+            }
+            val arrayAdapter = ArrayAdapter(requireContext(), R.layout.layout_spinner_list, list)
+            arrayAdapter.setDropDownViewResource(R.layout.layout_dropdown)
+            binding.spinArea.adapter = arrayAdapter
+            binding.spinArea.visibility = View.VISIBLE
+
+            binding.spinArea.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
+                override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
+                    areaId = if(p2==0){
+                        ""
+                    }else{
+                        arrayListArea[p2-1]["id"]!!
+                    }
+                }
+
+                override fun onNothingSelected(p0: AdapterView<*>?) {
+
+                }
+
+            }
+        }catch (e: Exception){
+
+        }
+
+    }
+
     private fun getButtons() {
+
+        binding.edtEmpDate.setOnTouchListener(View.OnTouchListener { v, event ->
+
+            val DRAWABLE_RIGHT = 2
+
+            if (event.action == MotionEvent.ACTION_UP) {
+                if (event.rawX >= binding.edtEmpDate.right - binding.edtEmpDate.compoundDrawables[DRAWABLE_RIGHT].bounds.width()) {
+                    // your action here
+                    ShortCut_To.showCal(binding.edtEmpDate, requireContext())
+                    return@OnTouchListener true
+                }
+            }
+            false
+        })
+
         binding.btnSubmit.setOnClickListener {
             ShortCut_To.hideKeyboard(requireActivity())
             if(binding.edtName.text.toString().isEmpty()){
@@ -91,6 +252,26 @@ class RegisterSupervisor : Fragment() {
 
             if(binding.spinDistrict.selectedItemPosition==0){
                 Toast.makeText(requireContext(), "Select Team Leader district", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            if(binding.spinComm.selectedItemPosition==0){
+                Toast.makeText(requireContext(), "Select Beneficiary community", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            if(binding.spinArea.selectedItemPosition==0){
+                Toast.makeText(requireContext(), "Select Beneficiary area", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            if(binding.edtEmpDate.text.toString().isEmpty()){
+                Toast.makeText(requireContext(), "Enter Beneficiary employment date", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            if(ShortCut_To.reverseDate(binding.edtEmpDate.text.toString(), "/", "-")==""){
+                Toast.makeText(requireContext(), "Enter a valid Beneficiary employment date dd/mm/yyyy", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
@@ -169,6 +350,24 @@ class RegisterSupervisor : Fragment() {
                 val adapter = ArrayAdapter(requireContext(), R.layout.layout_spinner_list, list)
                 adapter.setDropDownViewResource(R.layout.layout_dropdown)
                 binding.spinDistrict.adapter = adapter
+
+                binding.spinDistrict.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
+                    override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
+                        if (p2==0){
+                            distId = ""
+                            binding.spinComm.visibility= View.GONE
+                        }else{
+                            distId = arrayListDistrict[p2-1]["id"]!!
+                            filterComm()
+                            binding.spinComm.visibility= View.VISIBLE
+                        }
+                    }
+
+                    override fun onNothingSelected(p0: AdapterView<*>?) {
+
+                    }
+
+                }
             }
         }catch (e: Exception){
             e.printStackTrace()
@@ -181,8 +380,13 @@ class RegisterSupervisor : Fragment() {
             "name" to binding.edtName.text.toString(),
             "phone" to binding.edtPhone.text.toString(),
             "region_id" to arrayListRegion[binding.spinRegion.selectedItemPosition-1]["id"]!!,
-            "district_id" to arrayListDistrict[binding.spinDistrict.selectedItemPosition-1]["id"]!!
+            "district_id" to arrayListDistrict[binding.spinDistrict.selectedItemPosition-1]["id"]!!,
+            "community_id" to commId,
+            "deployment_area_id" to areaId,
+            "emp_date" to ShortCut_To.reverseDate(binding.edtEmpDate.text.toString(), "/",  "-"),
+            "yrs_worked" to ShortCut_To.compAge(binding.edtEmpDate.text.toString())
         )
+        println("boobbyy $body")
 
         try {
             GlobalScope.launch {
@@ -218,6 +422,7 @@ class RegisterSupervisor : Fragment() {
     private fun setInfo(res: String) {
         try {
 
+            println("mmmmmmm // $res")
             val jsonObject = JSONObject(res)
             val mess = jsonObject.optString("message")
             try {
@@ -232,8 +437,8 @@ class RegisterSupervisor : Fragment() {
             }
 
             Toast.makeText(requireContext(), mess, Toast.LENGTH_SHORT).show()
-            if(mess == "Supervisor created successfully"){
-
+            if(mess == "Team leader created successfully"){
+                (activity as MainBase).getSupervisors()
                 requireActivity().onBackPressed()
             }
             binding.progressBar.visibility = View.GONE

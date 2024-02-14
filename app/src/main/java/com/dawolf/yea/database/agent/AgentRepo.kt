@@ -14,8 +14,8 @@ class AgentRepo(private val agentDao: AgentDao) {
         return agentDao.getAgent(id)
     }
 
-    fun deleteAgent(id: String){
-        agentDao.deleteAgent(id)
+    fun deleteAgent(id: String) : Int{
+        return agentDao.deleteAgent(id)
     }
 
     fun deleteAll(){

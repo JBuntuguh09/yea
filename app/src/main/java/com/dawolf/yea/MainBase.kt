@@ -82,6 +82,12 @@ class MainBase : AppCompatActivity(), LocationListener {
     private lateinit var agentViewModel: AgentViewModel
     private lateinit var supervisorViewModel: SupervisorViewModel
     private lateinit var attendancesViewModel: AttendancesViewModel
+     var communites = MutableLiveData<String>()
+     var areas = MutableLiveData<String>()
+
+    var noAttend = MutableLiveData<String>()
+    var noAgent = MutableLiveData<String>()
+    var noSuper = MutableLiveData<String>()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -90,7 +96,7 @@ class MainBase : AppCompatActivity(), LocationListener {
         binding = ActivityMainBaseBinding.inflate(layoutInflater)
         setContentView(binding.root)
         storage = Storage(this)
-        loginTo()
+
         regionViewModel = ViewModelProvider(this, defaultViewModelProviderFactory)[RegionViewModel::class.java]
         districtViewModel = ViewModelProvider(this, defaultViewModelProviderFactory)[DistrictViewModel::class.java]
         sendViewModel = ViewModelProvider(this, defaultViewModelProviderFactory)[SendViewModel::class.java]
@@ -100,18 +106,18 @@ class MainBase : AppCompatActivity(), LocationListener {
         agentViewModel = ViewModelProvider(this, defaultViewModelProviderFactory)[AgentViewModel::class.java]
         supervisorViewModel = ViewModelProvider(this, defaultViewModelProviderFactory)[SupervisorViewModel::class.java]
         attendancesViewModel = ViewModelProvider(this, defaultViewModelProviderFactory)[AttendancesViewModel::class.java]
-
+        loginTo()
 
         locationManager = getSystemService(LOCATION_SERVICE) as LocationManager
         checkLocationPermission()
 
 
-
-
-
-
+        getSupervisors()
         getRegion()
         getDistrict()
+        getCommunity()
+        getArea()
+
 //        if (storage.first1 == 1){
 //            navTo(UserUpdate(), "Update Profile", "Login", 0)
 //        }else{
@@ -198,7 +204,7 @@ class MainBase : AppCompatActivity(), LocationListener {
                 try {
 
                     for (a in data.indices){
-                        senDSign(data[a].id.toString(), data[a].rfid, data[a].signout_date)
+                        senDSign(data[a].id.toString(), data[a].rfid, data[a].signout_date, data[a].lat, data[a].longi)
                     }
                 }catch (e:Exception){
                     e.printStackTrace()
@@ -215,10 +221,13 @@ class MainBase : AppCompatActivity(), LocationListener {
     }
 
     @OptIn(DelicateCoroutinesApi::class)
-    private fun senDSign(id: String, rfid: String, signoutDate: String) {
+    private fun senDSign(id: String, rfid: String, signoutDate: String, lats: String,
+                         longs: String) {
         val api = API()
         val body = mapOf(
-            "signout_date" to signoutDate
+            "signout_date" to signoutDate,
+            "signout_latitude" to lats,
+            "signout_longitude" to longs
 
         )
 
@@ -258,7 +267,8 @@ class MainBase : AppCompatActivity(), LocationListener {
             // Toast.makeText(this@MainBase, mess, Toast.LENGTH_SHORT).show()
             signoutViewModel.deleteByRfidId(rfid, storage.uSERID!!)
             sendViewModel.updateSend(id)
-            Toast.makeText(this, "Successfully signed out  $rfid", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, mess, Toast.LENGTH_SHORT).show()
+            println(mess+"//mooooo")
 
         }catch (e: Exception){
             e.printStackTrace()
@@ -301,7 +311,7 @@ class MainBase : AppCompatActivity(), LocationListener {
 
 
     @OptIn(DelicateCoroutinesApi::class)
-    private fun getRegion(){
+     fun getRegion(){
 
         //binding.progressBar.visibility = View.VISIBLE
         val api = API()
@@ -349,7 +359,7 @@ class MainBase : AppCompatActivity(), LocationListener {
     }
 
     @OptIn(DelicateCoroutinesApi::class)
-    private fun getDistrict(){
+     fun getDistrict(){
 
        // binding.progressBar.visibility = View.VISIBLE
         val api = API()
@@ -399,8 +409,8 @@ class MainBase : AppCompatActivity(), LocationListener {
         rfid: String,
         regId: String,
         distId: String,
-        lat: String,
-        long: String
+        lats: String,
+        longs: String
     ) = runBlocking {
 
         val api = API()
@@ -408,8 +418,8 @@ class MainBase : AppCompatActivity(), LocationListener {
             "rfid_no" to rfid,
             "region_id" to regId,
             "district_id" to distId,
-            "latitude" to lat,
-            "longitude" to long
+            "signin_latitude" to lats,
+            "signin_longitude" to longs
         )
 
         try {
@@ -446,13 +456,13 @@ class MainBase : AppCompatActivity(), LocationListener {
     private fun setInfo(res: String, id: String, rfid: String, regId: String, distId: String) {
         try {
             val jsonObject = JSONObject(res)
-           // val mess = jsonObject.optString("message")
+            val mess = jsonObject.optString("message")
 
            // Toast.makeText(this@MainBase, mess, Toast.LENGTH_SHORT).show()
             attendanceViewModel.deleteAllByRfidId(rfid, storage.uSERID!!)
             sendViewModel.updateSend(id)
 
-            Toast.makeText(this, "Successfully signed in $rfid", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, mess, Toast.LENGTH_SHORT).show()
 //            if(mess == "Attendance created successfully"){
 //
 //
@@ -669,6 +679,7 @@ class MainBase : AppCompatActivity(), LocationListener {
             val jsonObject = JSONObject(res)
             val data = jsonObject.getJSONArray("data")
             updateSupLiveData(res)
+            storage.projSupervisors = res
 
 
         }catch (e: Exception){
@@ -685,7 +696,6 @@ class MainBase : AppCompatActivity(), LocationListener {
     ////////////////////
     @OptIn(DelicateCoroutinesApi::class)
     private fun getAgents(){
-
         //binding.progressBar.visibility = View.VISIBLE
         val api = API()
         GlobalScope.launch {
@@ -710,29 +720,58 @@ class MainBase : AppCompatActivity(), LocationListener {
 
     private fun setAgentInfo(res: String) {
         try {
+            println(res)
             var num = 0
             val jsonObject = JSONObject(res)
-            val data = jsonObject.getJSONArray("data")
-            agentViewModel.deleteAgent(storage.uSERID!!)
-            for(a in 0 until data.length()){
-                val jObject = data.getJSONObject(a)
-                if (jObject.getString("status")=="Active"){
-                    num +=1
+            try {
+                val mess = jsonObject.optString("message")
+                if (mess == "Team Leader not found" || mess == "Beneficiary not found"){
+                    agentViewModel.deleteAgent(storage.uSERID!!)
+                    noAgent.value = "Yes"
                 }
-                val agent = Agent(jObject.getString("rfid_no"), storage.uSERID!!,jObject.getString("id"), jObject.getString("agent_id"),
-                    jObject.getString("name"), jObject.getString("dob"), jObject.getString("phone"), jObject.getString("address"),
-                    jObject.getJSONObject("region").getString("name"), jObject.getString("region_id")
-                    , jObject.getJSONObject("district").getString("name"), jObject.getString("district_id"),
-                    jObject.getString("rfid_no"), jObject.getString("longitude"),
-                    jObject.getJSONObject("supervisor").getString("name") ,jObject.getString("supervisor_id"),
-                    jObject.getJSONObject("supervisor").getString("email"), jObject.getJSONObject("supervisor").getString("phone"),
-                    jObject.getString("status"), jObject.getString("created_at"), jObject.getString("updated_at"), jObject.getString("gender"))
+            }catch (e: Exception){
 
-                agentViewModel.insert(agent)
+            }
+            val data = jsonObject.getJSONArray("data")
+             agentViewModel.deleteAgent(storage.uSERID!!)
+
+                for (a in 0 until data.length()) {
+                    val jObject = data.getJSONObject(a)
+                    if (jObject.getString("status") == "Active") {
+                        num += 1
+                    }
+                    val agent = Agent(
+                        jObject.getString("rfid_no"),
+                        storage.uSERID!!,
+                        jObject.getString("id"),
+                        jObject.getString("agent_id"),
+                        jObject.getString("name"),
+                        jObject.getString("dob"),
+                        jObject.getString("phone"),
+                        jObject.getString("address"),
+                        jObject.getJSONObject("region").getString("name"),
+                        jObject.getString("region_id"),
+                        jObject.getJSONObject("district").getString("name"),
+                        jObject.getString("district_id"),
+                        jObject.getString("rfid_no"),
+                        jObject.getString("longitude"),
+                        jObject.getJSONObject("supervisor").getString("name"),
+                        jObject.getString("supervisor_id"),
+                        jObject.getJSONObject("supervisor").getString("email"),
+                        jObject.getJSONObject("supervisor").getString("phone"),
+                        jObject.getString("status"),
+                        jObject.getString("created_at"),
+                        jObject.getString("updated_at"),
+                        jObject.getString("gender")
+                    )
+
+                    agentViewModel.insert(agent)
+
             }
 
-
+            noAgent.value = "No"
         }catch (e: Exception){
+
             e.printStackTrace()
         }
     }
@@ -766,23 +805,44 @@ class MainBase : AppCompatActivity(), LocationListener {
         try {
             var num = 0
             val jsonObject = JSONObject(res)
-            val data = jsonObject.getJSONArray("data")
-            supervisorViewModel.deleteSuper(storage.uSERID!!)
-            for(a in 0 until data.length()){
-                val jObject = data.getJSONObject(a)
-                if (jObject.getString("status")=="Active"){
-                    num +=1
+            try {
+                val mess = jsonObject.optString("message")
+                if (mess == "Team leader not found"){
+                    supervisorViewModel.deleteSuper(storage.uSERID!!)
+                    noSuper.value = "Yes"
                 }
-                val supervisor = Supervisor(jObject.getString("supervisor_id"), storage.uSERID!!,jObject.getString("id"), jObject.getString("name"),
-                    jObject.getString("phone"), jObject.getString("status"),
-                    jObject.getJSONObject("region").getString("name"), jObject.getString("region_id")
-                    , jObject.getJSONObject("district").getString("name"), jObject.getString("district_id"), jObject.getString("created_at"))
+                //Attendance not found
+            }catch (_: Exception){
 
-                supervisorViewModel.insert(supervisor)
+            }
+            val data = jsonObject.getJSONArray("data")
+
+            supervisorViewModel.deleteSuper(storage.uSERID!!)
+                for (a in 0 until data.length()) {
+                    val jObject = data.getJSONObject(a)
+                    if (jObject.getString("status") == "Active") {
+                        num += 1
+                    }
+                    val supervisor = Supervisor(
+                        jObject.getString("supervisor_id"),
+                        storage.uSERID!!,
+                        jObject.getString("id"),
+                        jObject.getString("name"),
+                        jObject.getString("phone"),
+                        jObject.getString("status"),
+                        jObject.getJSONObject("region").getString("name"),
+                        jObject.getString("region_id"),
+                        jObject.getJSONObject("district").getString("name"),
+                        jObject.getString("district_id"),
+                        jObject.getString("created_at")
+                    )
+
+                    supervisorViewModel.insert(supervisor)
             }
 
-
+            noSuper.value = "No"
         }catch (e: Exception){
+
             e.printStackTrace()
         }
     }
@@ -821,6 +881,16 @@ class MainBase : AppCompatActivity(), LocationListener {
             var week = 0
             var month = 0
             val jsonObject = JSONObject(res)
+            try {
+                val mess = jsonObject.optString("message")
+                if (mess == "Attendance not found"){
+                    attendancesViewModel.deleteBid(storage.uSERID!!)
+                    noAttend.value = "Yes"
+                }
+                //
+            }catch (_: Exception){
+
+            }
             val data = jsonObject.getJSONArray("data")
             attendancesViewModel.deleteBid(storage.uSERID!!)
             for(a in 0 until data.length()){
@@ -850,9 +920,108 @@ class MainBase : AppCompatActivity(), LocationListener {
 
             }
 
-
+            noAttend.value = "No"
 
         }catch (e: Exception){
+
+            e.printStackTrace()
+        }
+    }
+
+
+    @OptIn(DelicateCoroutinesApi::class)
+     fun getCommunity(){
+
+        // binding.progressBar.visibility = View.VISIBLE
+        val api = API()
+        GlobalScope.launch {
+            try {
+                val res = api.getAPI(Constant.URL+"api/communities",  this@MainBase)
+                withContext(Dispatchers.Main){
+                  //  setCommunityInfo(res)
+                    communites.value = res
+                    storage.projCommunities = res
+                }
+            }catch (e: Exception){
+                e.printStackTrace()
+                binding.progressBar.visibility = View.GONE
+                withContext(Dispatchers.Main){
+                    Toast.makeText(this@MainBase, "No data found.", Toast.LENGTH_SHORT).show()
+
+                }
+            }
+        }
+    }
+
+    private fun setCommunityInfo(res: String) {
+        try {
+            binding.progressBar.visibility = View.GONE
+            val jsonObject = JSONObject(res)
+            val data = jsonObject.getJSONArray("data")
+            val list = ArrayList<String>()
+            list.add("Select communities")
+            for(a in 0 until data.length()){
+                val jObject = data.getJSONObject(a)
+                val hash = HashMap<String, String>()
+                hash["id"] = jObject.optString("id")
+                hash["name"] = jObject.optString("name")
+
+                val district = District(jObject.optString("id"), jObject.optString("name"))
+                districtViewModel.insert(district)
+
+            }
+
+
+        }catch (e:Exception){
+            e.printStackTrace()
+        }
+    }
+
+    ////////////////////
+    @OptIn(DelicateCoroutinesApi::class)
+     fun getArea(){
+
+        // binding.progressBar.visibility = View.VISIBLE
+        val api = API()
+        GlobalScope.launch {
+            try {
+                val res = api.getAPI(Constant.URL+"api/deployment-areas",  this@MainBase)
+                withContext(Dispatchers.Main){
+                    //setAreaInfo(res)
+                    areas.value = res
+                    storage.projAreas = res
+                }
+            }catch (e: Exception){
+                e.printStackTrace()
+                binding.progressBar.visibility = View.GONE
+                withContext(Dispatchers.Main){
+                    Toast.makeText(this@MainBase, "No data found.", Toast.LENGTH_SHORT).show()
+
+                }
+            }
+        }
+    }
+
+    private fun setAreaInfo(res: String) {
+        try {
+            binding.progressBar.visibility = View.GONE
+            val jsonObject = JSONObject(res)
+            val data = jsonObject.getJSONArray("data")
+            val list = ArrayList<String>()
+            list.add("Select deployment areas")
+            for(a in 0 until data.length()){
+                val jObject = data.getJSONObject(a)
+                val hash = HashMap<String, String>()
+                hash["id"] = jObject.optString("id")
+                hash["name"] = jObject.optString("name")
+
+                val district = District(jObject.optString("id"), jObject.optString("name"))
+                districtViewModel.insert(district)
+
+            }
+
+
+        }catch (e:Exception){
             e.printStackTrace()
         }
     }

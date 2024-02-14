@@ -1232,6 +1232,12 @@ object ShortCut_To {
         }
     }
 
+    fun checkifIsSameMonthYear(date: String):Boolean{
+        val today = currentDateFormat2.split("/")
+        val cD = date.split("/")
+        return today[1].toInt() == cD[1].toInt() && today[2].toInt() == cD[2].toInt()
+    }
+
     fun blinkCardView(cardView: CardView, activity: Activity) {
         val animator = ObjectAnimator.ofArgb(
             cardView,
@@ -1289,10 +1295,22 @@ object ShortCut_To {
 
     fun reverseDate(date: String, split: String, newSplit: String): String {
         return try {
-            "${date.split(split)[2]}$newSplit${date.split(split)[1]}$newSplit${date.split(split)[0]}"
+            var days = date.split(split)[0]
+            var mths = date.split(split)[1]
+            val yrs = date.split(split)[2]
+
+            if (days.length==1){
+                days = "0$days"
+            }
+            if (mths.length==1){
+                mths = "0$mths"
+            }
+
+
+            "${yrs}$newSplit${mths}$newSplit${days}"
         }catch (e : Exception){
             e.printStackTrace()
-            date
+            ""
         }
 
     }
@@ -1421,5 +1439,56 @@ object ShortCut_To {
     }
 
 
+
+    fun compAge(dateString: String): String {
+
+
+        // Define the date format
+        val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+
+        // Parse the string into a Date object
+        val date = dateFormat.parse(dateString)
+
+        // Calculate the number of years between the given date and the current date
+        val numberOfYears = yearsBetween(date, Date())
+
+
+        println("Number of years since $dateString: $numberOfYears")
+        if (numberOfYears>1){
+            return "$numberOfYears years"
+        }else if (numberOfYears==0){
+            return "$numberOfYears year"
+        }else{
+            // Calculate the difference between the given date and the current date
+            val difference = differenceInMonths(date, Date())
+            return "$difference months"
+        }
+
+    }
+
+    fun yearsBetween(startDate: Date, endDate: Date): Int {
+        val startCalendar = Calendar.getInstance()
+        startCalendar.time = startDate
+        val endCalendar = Calendar.getInstance()
+        endCalendar.time = endDate
+
+        var years = endCalendar.get(Calendar.YEAR) - startCalendar.get(Calendar.YEAR)
+        if (startCalendar.get(Calendar.DAY_OF_YEAR) > endCalendar.get(Calendar.DAY_OF_YEAR)) {
+            years--
+        }
+        return years
+    }
+
+    fun differenceInMonths(startDate: Date, endDate: Date): Int {
+        val startCalendar = Calendar.getInstance()
+        startCalendar.time = startDate
+        val endCalendar = Calendar.getInstance()
+        endCalendar.time = endDate
+
+        val diffYear = endCalendar.get(Calendar.YEAR) - startCalendar.get(Calendar.YEAR)
+        val diffMonth = endCalendar.get(Calendar.MONTH) - startCalendar.get(Calendar.MONTH)
+
+        return diffYear * 12 + diffMonth
+    }
 
 }

@@ -34,10 +34,11 @@ class SupervisorViewModel(application: Application) : AndroidViewModel(applicati
         return repo.getSuper(id)
     }
 
-    fun deleteSuper(id: String){
-        viewModelScope.launch(Dispatchers.IO) {
+    fun deleteSuper(id: String):Boolean{
+        val res = viewModelScope.launch(Dispatchers.IO) {
             repo.deleteSuper(id)
-        }
+        }.isCompleted
+        return res
     }
 
     fun updateSupervisor(vName: String, vPhone: String, vRegionName:String, vRegion: String, vDistrictName:String, vDistrict: String,  superId: String){

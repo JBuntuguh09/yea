@@ -109,6 +109,10 @@ class Supervisors : Fragment() {
 
             }
         }
+
+        ShortCut_To.runSwipe(binding.swipe){
+            getSupervisors()
+        }
     }
 
     private fun getButtons() {

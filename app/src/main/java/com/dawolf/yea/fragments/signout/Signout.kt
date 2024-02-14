@@ -92,6 +92,11 @@ class Signout : Fragment() {
                 }
             }
         }
+
+        ShortCut_To.runSwipe(binding.swipe){
+            arrayList.clear()
+            getSignouts()
+        }
     }
 
     private fun setSuperInfo(res: String) {
